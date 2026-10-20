@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "五份文档的管道之旅 · 流程动画",
+    "output": "docs/6_多媒体信息抽取_文档流转动画.html",
+    "viewBox": [1500, 780],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "d1-main-journey",
+        "label": "D1 主证据之旅",
+        "focus": ["d1", "archive", "grade", "main", "distill", "entries", "graph"],
+        "note": "官方手册建档后评为主证据，术语对齐后进蒸馏，条目带出处进图谱。"
+      },
+      {
+        "id": "d3-supp-journey",
+        "label": "D3 补充证据之旅",
+        "focus": ["d3", "archive", "grade", "supp", "distill", "entries"],
+        "note": "培训讲义补主证据的缺口，条目必须标置信度，与主证据冲突时听主证据。"
+      },
+      {
+        "id": "d4-clue-journey",
+        "label": "D4 线索与断言回查",
+        "focus": ["d4", "grade", "clue", "cluelists", "triage", "entries", "registries"],
+        "note": "论坛帖永不进证据链，只产三份清单；断言回查证据层，证实才转正。"
+      },
+      {
+        "id": "d5-drop-journey",
+        "label": "D5 丢弃",
+        "focus": ["d5", "grade", "drop"],
+        "note": "仅用词沾边的文档直接丢弃，只留元信息卡备查，不再占用后续任何环节。"
+      }
+    ]
+  },
+  "stages": [
+    { "label": "新到语料（5 份）" },
+    { "label": "L0 建档 · L1 分级" },
+    { "label": "分流去向" },
+    { "label": "对齐蒸馏 · 断言回查" },
+    { "label": "产物与图谱" }
+  ],
+  "nodes": [
+    { "id": "d1", "type": "external", "label": "D1 官方操作手册", "sublabel": "厂家出品 操作级", "stage": 0, "row": 0, "tag": "权威性高" },
+    { "id": "d2", "type": "external", "label": "D2 行业技术标准", "sublabel": "协会发布 规范级", "stage": 0, "row": 1, "tag": "权威性高" },
+    { "id": "d3", "type": "external", "label": "D3 厂商培训讲义", "sublabel": "操作细节互补", "stage": 0, "row": 2, "tag": "密度中等" },
+    { "id": "d4", "type": "external", "label": "D4 论坛精华帖", "sublabel": "经验谈 未核实", "stage": 0, "row": 3, "tag": "粗糙但新鲜" },
+    { "id": "d5", "type": "external", "label": "D5 营销软文", "sublabel": "仅用词沾边", "stage": 0, "row": 4, "tag": "无信息量" },
+
+    { "id": "archive", "type": "database", "label": "L0 采集归档", "sublabel": "文件夹+元信息卡+目录", "stage": 1, "row": 1, "tag": "结构化 只读原文" },
+    { "id": "grade", "type": "backend", "label": "L1 三维分级", "sublabel": "权威性×相关性×密度", "stage": 1, "row": 2, "tag": "看卡片与抽样 不读全文" },
+    { "id": "drop", "type": "external", "label": "丢弃", "sublabel": "D5 到此为止", "stage": 1, "row": 4, "tag": "只留元信息卡备查" },
+
+    { "id": "main", "type": "database", "label": "主证据层", "sublabel": "D1 + D2", "stage": 2, "row": 0, "tag": "每领域 1~2 份 人工指定" },
+    { "id": "supp", "type": "database", "label": "补充证据层", "sublabel": "D3", "stage": 2, "row": 1, "tag": "冲突时听主证据" },
+    { "id": "clue", "type": "backend", "label": "线索层", "sublabel": "D4", "stage": 2, "row": 3, "tag": "永不进证据链" },
+
+    { "id": "distill", "type": "backend", "label": "L1.5 对齐 + L2 蒸馏", "sublabel": "先登术语 再逐条蒸", "stage": 3, "row": 0, "tag": "只读原文 逐句覆盖" },
+    { "id": "cluelists", "type": "database", "label": "线索层三清单", "sublabel": "概念提及/断言日志/检索词", "stage": 3, "row": 3, "tag": "只指路 不作数" },
+    { "id": "triage", "type": "backend", "label": "断言三态回查", "sublabel": "证实 / 证伪 / 查无此文", "stage": 3, "row": 4, "tag": "回查证据层原文 攒到里程碑" },
+
+    { "id": "registries", "type": "database", "label": "三份登记册", "sublabel": "盲区 / 冲突 / 待仲裁", "stage": 4, "row": 0, "tag": "缺口与悬案随手记账" },
+    { "id": "entries", "type": "database", "label": "entries.jsonl", "sublabel": "每条带章节出处+置信度", "stage": 4, "row": 1, "tag": "全链路主产物" },
+    { "id": "graph", "type": "database", "label": "知识图谱", "sublabel": "3 类节点 · 6 种边", "stage": 4, "row": 2, "tag": "无出处边即非法" }
+  ],
+  "flows": [
+    { "from": "d1", "to": "archive", "label": "收集入库", "variant": "emphasis", "width": 2.4, "labelAt": [163, 200] },
+    { "from": "d2", "to": "archive", "label": "收集入库", "variant": "emphasis", "width": 2.4, "route": "straight", "labelAt": [163, 314] },
+    { "from": "d3", "to": "archive", "label": "收集入库", "variant": "default", "width": 1.8, "labelAt": [163, 428] },
+    { "from": "d4", "to": "archive", "label": "收集入库", "variant": "dashed", "width": 1.8, "labelAt": [163, 542] },
+    { "from": "d5", "to": "archive", "label": "收集入库", "variant": "dashed", "width": 1.8, "labelAt": [163, 656] },
+
+    { "from": "archive", "to": "grade", "label": "元信息卡+目录+抽样", "variant": "emphasis", "width": 2.4 },
+
+    { "from": "grade", "to": "main", "label": "D1 D2 官方且操作级", "variant": "emphasis", "width": 2.4 },
+    { "from": "grade", "to": "supp", "label": "D3 与主证据互补", "variant": "emphasis", "width": 2.4, "labelAt": [365, 428] },
+    { "from": "grade", "to": "clue", "label": "D4 粗糙", "variant": "dashed", "width": 1.8, "labelAt": [422, 455] },
+    { "from": "grade", "to": "drop", "label": "D5 仅沾边", "variant": "dashed", "width": 1.8 },
+
+    { "from": "main", "to": "distill", "label": "术语对齐后蒸馏", "variant": "emphasis", "width": 2.4, "route": "straight" },
+    { "from": "supp", "to": "distill", "label": "条目标置信度", "variant": "emphasis", "width": 2.4 },
+    { "from": "clue", "to": "cluelists", "label": "只产三份清单", "variant": "dashed", "width": 1.8 },
+
+    { "from": "distill", "to": "entries", "label": "逐条写入", "variant": "emphasis", "width": 2.4 },
+    { "from": "distill", "to": "registries", "label": "沉淀盲区与冲突", "variant": "default", "width": 1.8, "route": "straight" },
+    { "from": "cluelists", "to": "triage", "label": "断言驱动回查", "variant": "dashed", "width": 1.8 },
+
+    { "from": "triage", "to": "entries", "label": "证实转正", "variant": "dashed", "width": 1.8 },
+    { "from": "triage", "to": "registries", "label": "证伪查无", "variant": "dashed", "width": 1.8, "fromSide": "bottom", "toSide": "right", "via": [[745, 700], [1060, 700], [1060, 157]], "labelAt": [1060, 400] },
+    { "from": "entries", "to": "graph", "label": "索引成边", "variant": "emphasis", "width": 2.4 }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "五份文档的身份与去向",
+      "items": [
+        "D1 官方手册、D2 行业标准 → 主证据层，蒸馏的主要依据",
+        "D3 培训讲义 → 补充证据层，条目必须标置信度",
+        "D4 论坛帖 → 线索层，D5 软文 → 丢弃"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "线索层是单行道",
+      "items": [
+        "只产三份清单：概念提及、断言日志、检索词表",
+        "断言日志回查主与补充证据层原文，证实才转正进 entries",
+        "证伪与查无此文登记入册，永远不写回证据链"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "到达图谱时已经过硬约束",
+      "items": [
+        "每条 entry 带章节级出处，无出处边即非法",
+        "蒸馏只读原文，译文仅供人阅读不参与",
+        "术语合并、主证据指定、回查处置全是人工确认点"
+      ]
+    }
+  ]
+}

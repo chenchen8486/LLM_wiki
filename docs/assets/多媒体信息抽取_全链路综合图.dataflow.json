@@ -1,0 +1,653 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "多媒体信息抽取知识管道 · 全链路综合图",
+    "output": "docs/4_多媒体信息抽取_全链路综合图.html",
+    "viewBox": [
+      1500,
+      720
+    ],
+    "quality_profile": "standard",
+    "views": [
+      {
+        "id": "mainline",
+        "label": "主证据链主线",
+        "focus": [
+          "collect",
+          "extract",
+          "folder",
+          "card",
+          "grade",
+          "main",
+          "supp",
+          "termalign",
+          "distill",
+          "entries",
+          "graph",
+          "specbook",
+          "blind",
+          "dev"
+        ],
+        "note": "采集、归档、分级、对齐、蒸馏、图谱、组装、盲评，证据正常流动的主路径。"
+      },
+      {
+        "id": "clue-channel",
+        "label": "线索层受限通道",
+        "focus": [
+          "grade",
+          "clue",
+          "cluelists",
+          "triage",
+          "termalign",
+          "entries",
+          "registries"
+        ],
+        "note": "线索层只产三份清单，只能指路：别名进登记表走人工确认，断言走三态闭环回查。"
+      },
+      {
+        "id": "distill-internals",
+        "label": "蒸馏层内部机制",
+        "focus": [
+          "termalign",
+          "distill",
+          "entries",
+          "registries",
+          "triage"
+        ],
+        "note": "结构冻结加金样板先行，蒸馏只读原文、逐句覆盖，顺带沉淀三份登记册。"
+      },
+      {
+        "id": "graph-queries",
+        "label": "图谱与三类查询",
+        "focus": [
+          "entries",
+          "graph",
+          "check",
+          "query",
+          "registries",
+          "specbook",
+          "cleanup"
+        ],
+        "note": "图谱是蒸馏产物的关系索引，校验器强制出处纪律，规格、风险、覆盖三类查询走确定性匹配。"
+      },
+      {
+        "id": "qa-loop",
+        "label": "质量保障闭环",
+        "focus": [
+          "distill",
+          "entries",
+          "registries",
+          "query",
+          "specbook",
+          "cleanup",
+          "blind",
+          "dev"
+        ],
+        "note": "开工前定结构做金样板，干活中两条生产纪律，交付前组装、清算、盲评，通过率不低于 85%。"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "label": "L0 采集与归档"
+    },
+    {
+      "label": "L1 分级与分流"
+    },
+    {
+      "label": "L1.5 对齐 · L2 蒸馏"
+    },
+    {
+      "label": "L3 规格与索引"
+    },
+    {
+      "label": "把关与交付"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "collect",
+      "type": "external",
+      "label": "多渠道语料收集",
+      "sublabel": "pdf / ppt / doc / md / txt",
+      "stage": 0,
+      "row": 0,
+      "tag": "不做质量预判"
+    },
+    {
+      "id": "extract",
+      "type": "backend",
+      "label": "结构化抽取",
+      "sublabel": "保留章节编号树",
+      "stage": 0,
+      "row": 1,
+      "tag": "MinerU 等工具"
+    },
+    {
+      "id": "folder",
+      "type": "database",
+      "label": "文档文件夹",
+      "sublabel": "原文+MD+目录索引",
+      "stage": 0,
+      "row": 2,
+      "tag": "只读事实库"
+    },
+    {
+      "id": "card",
+      "type": "database",
+      "label": "元信息卡",
+      "sublabel": "身份 + 分级回写",
+      "stage": 0,
+      "row": 3,
+      "tag": "全生命周期档案"
+    },
+    {
+      "id": "translation",
+      "type": "database",
+      "label": "译文附件",
+      "sublabel": "仅供人阅读定位",
+      "stage": 0,
+      "row": 4,
+      "tag": "衍生资料 不入证据链"
+    },
+    {
+      "id": "main",
+      "type": "database",
+      "label": "主证据层",
+      "sublabel": "官方操作级 每领域1~2份",
+      "stage": 1,
+      "row": 0,
+      "tag": "人工指定 蒸馏主要依据"
+    },
+    {
+      "id": "supp",
+      "type": "database",
+      "label": "补充证据层",
+      "sublabel": "有主证据缺失的信息",
+      "stage": 1,
+      "row": 1,
+      "tag": "须标置信度 冲突听主证据"
+    },
+    {
+      "id": "grade",
+      "type": "backend",
+      "label": "L1 三维分级",
+      "sublabel": "权威性×相关性×密度",
+      "stage": 1,
+      "row": 2,
+      "tag": "卡片+目录+抽样 不读全文"
+    },
+    {
+      "id": "clue",
+      "type": "backend",
+      "label": "线索层",
+      "sublabel": "播客 / 综述 / 博客",
+      "stage": 1,
+      "row": 3,
+      "tag": "永不进证据链"
+    },
+    {
+      "id": "drop",
+      "type": "external",
+      "label": "丢弃",
+      "sublabel": "仅用词沾边",
+      "stage": 1,
+      "row": 4,
+      "tag": "只留元信息卡备查"
+    },
+    {
+      "id": "termalign",
+      "type": "database",
+      "label": "术语对齐与登记表",
+      "sublabel": "canonical_id + aliases",
+      "stage": 2,
+      "row": 0,
+      "tag": "合并与补登永远人工确认"
+    },
+    {
+      "id": "distill",
+      "type": "backend",
+      "label": "L2 蒸馏",
+      "sublabel": "五类骨架 × 领域字段表",
+      "stage": 2,
+      "row": 1,
+      "tag": "金样板先行 只读原文"
+    },
+    {
+      "id": "entries",
+      "type": "database",
+      "label": "entries.jsonl",
+      "sublabel": "source 到章节级",
+      "stage": 2,
+      "row": 2,
+      "tag": "置信度+状态 全链路主产物"
+    },
+    {
+      "id": "registries",
+      "type": "database",
+      "label": "三份登记册",
+      "sublabel": "盲区 / 冲突 / 待仲裁",
+      "stage": 2,
+      "row": 3,
+      "tag": "缺口与悬案随手记账"
+    },
+    {
+      "id": "cluelists",
+      "type": "database",
+      "label": "线索层三清单",
+      "sublabel": "概念提及/断言日志/检索词表",
+      "stage": 2,
+      "row": 4,
+      "tag": "只指路不作数"
+    },
+    {
+      "id": "check",
+      "type": "security",
+      "label": "非法结构校验器",
+      "sublabel": "无出处边即非法等四条",
+      "stage": 3,
+      "row": 0,
+      "tag": "强制拦截 违规出报告"
+    },
+    {
+      "id": "graph",
+      "type": "database",
+      "label": "知识图谱",
+      "sublabel": "3 类节点 · 6 种边",
+      "stage": 3,
+      "row": 1,
+      "tag": "初期即 entries.jsonl 本身"
+    },
+    {
+      "id": "query",
+      "type": "backend",
+      "label": "三类逆向查询",
+      "sublabel": "规格 / 风险 / 覆盖",
+      "stage": 3,
+      "row": 2,
+      "tag": "jq+grep 确定性取数"
+    },
+    {
+      "id": "triage",
+      "type": "backend",
+      "label": "断言三态回查",
+      "sublabel": "证实 / 证伪 / 查无",
+      "stage": 3,
+      "row": 3,
+      "tag": "回查主与补充证据层"
+    },
+    {
+      "id": "specbook",
+      "type": "backend",
+      "label": "规格书组装",
+      "sublabel": "定稿 md / html 有目录",
+      "stage": 4,
+      "row": 1,
+      "tag": "不产生新知识"
+    },
+    {
+      "id": "cleanup",
+      "type": "backend",
+      "label": "清单清算",
+      "sublabel": "盲区+冲突+低置信逐项处置",
+      "stage": 4,
+      "row": 2,
+      "tag": "覆盖差集清零"
+    },
+    {
+      "id": "blind",
+      "type": "security",
+      "label": "盲评",
+      "sublabel": "懂行人 非作者",
+      "stage": 4,
+      "row": 3,
+      "tag": "通过率 ≥85% 才放行"
+    },
+    {
+      "id": "dev",
+      "type": "external",
+      "label": "进入开发",
+      "sublabel": "规格冻结交付",
+      "stage": 4,
+      "row": 4,
+      "tag": "验收通过"
+    }
+  ],
+  "flows": [
+    {
+      "from": "collect",
+      "to": "extract",
+      "label": "原始文档",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "extract",
+      "to": "folder",
+      "label": "结构化归档",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "folder",
+      "to": "card",
+      "label": "建档登记",
+      "variant": "default",
+      "width": 1.8
+    },
+    {
+      "from": "card",
+      "to": "translation",
+      "label": "登记 derived_from",
+      "variant": "dashed",
+      "width": 1.8
+    },
+    {
+      "from": "folder",
+      "to": "grade",
+      "label": "目录索引 + 抽样",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "card",
+      "to": "grade",
+      "label": "出品机构与类型",
+      "variant": "default",
+      "width": 1.8
+    },
+    {
+      "from": "grade",
+      "to": "main",
+      "label": "官方且操作级",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          430,
+          385
+        ],
+        [
+          430,
+          157
+        ]
+      ],
+      "labelAt": [
+        430,
+        235
+      ],
+      "width": 2.4
+    },
+    {
+      "from": "grade",
+      "to": "supp",
+      "label": "互补或名额已满",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "grade",
+      "to": "clue",
+      "label": "粗糙",
+      "variant": "dashed",
+      "width": 1.8
+    },
+    {
+      "from": "grade",
+      "to": "drop",
+      "label": "仅沾边",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          448,
+          385
+        ],
+        [
+          448,
+          613
+        ]
+      ],
+      "labelAt": [
+        448,
+        502
+      ],
+      "width": 1.8
+    },
+    {
+      "from": "clue",
+      "to": "cluelists",
+      "label": "只产三份清单",
+      "variant": "dashed",
+      "labelAt": [
+        408,
+        540
+      ],
+      "width": 1.8
+    },
+    {
+      "from": "cluelists",
+      "to": "termalign",
+      "label": "别名候选 人工确认",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          640,
+          613
+        ],
+        [
+          640,
+          157
+        ]
+      ],
+      "labelAt": [
+        640,
+        430
+      ],
+      "width": 1.8
+    },
+    {
+      "from": "main",
+      "to": "termalign",
+      "label": "新文档入库",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "supp",
+      "to": "termalign",
+      "label": "新文档入库",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "termalign",
+      "to": "distill",
+      "label": "只填 canonical_id",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "distill",
+      "to": "entries",
+      "label": "逐条写入",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "distill",
+      "to": "registries",
+      "label": "沉淀缺口与悬案",
+      "variant": "default",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          617,
+          271
+        ],
+        [
+          617,
+          499
+        ]
+      ],
+      "labelAt": [
+        617,
+        340
+      ],
+      "width": 1.8
+    },
+    {
+      "from": "entries",
+      "to": "graph",
+      "label": "出处依赖冲突索引",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "check",
+      "to": "graph",
+      "label": "形状约束强制",
+      "variant": "security",
+      "width": 1.8
+    },
+    {
+      "from": "graph",
+      "to": "query",
+      "label": "三类查询入口",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "query",
+      "to": "registries",
+      "label": "覆盖差集登记盲区",
+      "variant": "dashed",
+      "labelDy": 24,
+      "width": 1.8
+    },
+    {
+      "from": "cluelists",
+      "to": "triage",
+      "label": "断言驱动回查",
+      "variant": "dashed",
+      "width": 1.8
+    },
+    {
+      "from": "triage",
+      "to": "entries",
+      "label": "证实转正",
+      "variant": "dashed",
+      "labelDy": -24,
+      "width": 1.8
+    },
+    {
+      "from": "triage",
+      "to": "registries",
+      "label": "证伪查无登记",
+      "variant": "dashed",
+      "width": 1.8
+    },
+    {
+      "from": "graph",
+      "to": "specbook",
+      "label": "条目按目录组装",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "specbook",
+      "to": "cleanup",
+      "label": "冻结前送清算",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "query",
+      "to": "cleanup",
+      "label": "风险清单与覆盖审计",
+      "variant": "default",
+      "width": 1.8
+    },
+    {
+      "from": "cleanup",
+      "to": "blind",
+      "label": "清单清零后送审",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "blind",
+      "to": "dev",
+      "label": "通过率 ≥85%",
+      "variant": "emphasis",
+      "width": 2.4
+    },
+    {
+      "from": "blind",
+      "to": "distill",
+      "label": "打回 低分环节加固",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "right",
+      "via": [
+        [
+          880,
+          499
+        ],
+        [
+          880,
+          88
+        ],
+        [
+          665,
+          88
+        ],
+        [
+          665,
+          271
+        ]
+      ],
+      "labelAt": [
+        760,
+        80
+      ],
+      "width": 1.8
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "三条基本原则",
+      "items": [
+        "不建向量库，逐句覆盖",
+        "结构先于语料定稿冻结",
+        "线索不等于证据，只指路"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "生产纪律与人工确认点",
+      "items": [
+        "结构冻结加金样板；偏差先改规范再统一返工",
+        "冲突仲裁：主证据优先、同级并存、supersedes",
+        "推理补全标假设，置信度最高为中；分级三步走：人工→LLM抽检→规则固化",
+        "主证据指定、术语合并、别名补登、清算、盲评全人工"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "非法结构红线",
+      "items": [
+        "无 SUPPORTS 出处边即非法；出处指向译文即非法",
+        "线索层只能走 MENTIONS 边碰术语节点",
+        "术语只填 canonical_id，不许写自由文本"
+      ]
+    }
+  ]
+}
