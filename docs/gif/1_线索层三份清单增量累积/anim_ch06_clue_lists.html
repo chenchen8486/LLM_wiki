@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>线索层三份清单的增量累积（帧动画源稿 v2）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; background: #f7f7f5; color: #22221f; }
+  #stage { width: 1920px; height: 1080px; padding: 26px 36px 20px; overflow: hidden; position: relative; }
+  h1 { font-size: 30px; letter-spacing: .02em; }
+  .sub { font-size: 15.5px; color: #55554f; margin-top: 6px; }
+  #main { position: relative; height: 872px; margin-top: 14px; }
+
+  /* 左：入库队列 */
+  #queue { position: absolute; left: 0; top: 0; width: 360px; }
+  .panel-title { font-size: 16px; font-weight: 700; color: #55554f; margin-bottom: 10px; letter-spacing: .06em; }
+  .doc { display: flex; align-items: center; gap: 10px; height: 66px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 10px; padding: 0 12px; margin-bottom: 12px; opacity: .45; transition: none; }
+  .doc.active { opacity: 1; border-color: #285e8a; box-shadow: 0 0 0 3px #e8f0f6; }
+  .doc.done { opacity: 1; }
+  .dnum { flex: none; width: 27px; height: 27px; border-radius: 50%; background: #f1f0eb; color: #55554f; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .doc.active .dnum { background: #285e8a; color: #fff; }
+  .dmeta { flex: 1; min-width: 0; }
+  .dname { font-size: 16.5px; font-weight: 700; }
+  .dkind { font-size: 12.5px; color: #9a9a94; margin-top: 2px; }
+  .dverdict { flex: none; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 3px 10px; visibility: hidden; }
+  .dverdict.main { background: #e8f0f6; color: #285e8a; }
+  .dverdict.supp { background: #e9f6ef; color: #1e8e4e; }
+  .dverdict.clue { background: #fdf3e3; color: #d97706; }
+  .dverdict.drop { background: #f1f0eb; color: #9a9a94; }
+
+  /* 中：L1 分级 */
+  #mid { position: absolute; left: 400px; top: 0; width: 290px; }
+  .l1box { position: absolute; top: 336px; left: 0; width: 290px; height: 200px; background: #fff; border: 2px solid #285e8a; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .l1box .t { font-size: 23px; font-weight: 700; color: #285e8a; }
+  .l1box .s { font-size: 14.5px; color: #55554f; margin-top: 8px; }
+  .l1box.idle { border-color: #e2e0d8; }
+  .l1box.idle .t { color: #9a9a94; }
+  #vchip { position: absolute; top: 556px; left: 0; width: 290px; text-align: center; visibility: hidden; }
+  #vchip span { display: inline-block; font-size: 16.5px; font-weight: 700; border-radius: 999px; padding: 7px 20px; }
+  #vchip.main span { background: #e8f0f6; color: #285e8a; }
+  #vchip.supp span { background: #e9f6ef; color: #1e8e4e; }
+  #vchip.clue span { background: #fdf3e3; color: #d97706; }
+  #vchip.drop span { background: #f1f0eb; color: #9a9a94; }
+  #vnote { position: absolute; top: 600px; left: 0; width: 290px; text-align: center; font-size: 14px; color: #9a9a94; visibility: hidden; }
+
+  /* 右：三份清单 */
+  #lists { position: absolute; left: 730px; top: 0; width: 1118px; }
+  .list { height: 280px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 12px; margin-bottom: 16px; padding: 10px 14px; overflow: hidden; }
+  .list.glow { border-color: #d97706; box-shadow: 0 0 0 3px #fdf3e3; }
+  .list-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 1px solid #e2e0d8; padding-bottom: 8px; }
+  .lname { font-size: 17.5px; font-weight: 700; }
+  .lfile { font-size: 13px; color: #9a9a94; font-family: Consolas, monospace; }
+  .lcount { margin-left: auto; font-size: 16.5px; font-weight: 700; color: #285e8a; background: #e8f0f6; border-radius: 999px; padding: 2px 14px; }
+  .rows { padding-top: 8px; }
+  .row { display: flex; align-items: center; gap: 8px; height: 26px; font-size: 15.5px; }
+  .row.hidden { visibility: hidden; }
+  .row.flash { background: #fdf3e3; border-radius: 6px; }
+  .term { font-weight: 700; }
+  .freq { font-size: 13px; color: #285e8a; background: #e8f0f6; border-radius: 999px; padding: 0 8px; font-weight: 700; }
+  .aid { font-family: Consolas, monospace; font-size: 14px; color: #55554f; }
+  .claim { color: #22221f; }
+  .chip { margin-left: auto; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 1px 10px; background: #fdf3e3; color: #d97706; flex: none; }
+  .wto { color: #55554f; }
+  .wnull { color: #9a9a94; }
+
+  /* 连接线 */
+  #wires { position: absolute; left: 0; top: 0; pointer-events: none; }
+
+  /* 底部进度 */
+  #foot { display: flex; align-items: center; margin-top: 6px; height: 56px; }
+  #flabel { font-size: 17px; font-weight: 700; color: #22221f; }
+  #dots { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #d8d6ce; background: #fff; }
+  .dot.done.main { background: #285e8a; border-color: #285e8a; }
+  .dot.done.supp { background: #1e8e4e; border-color: #1e8e4e; }
+  .dot.done.clue { background: #d97706; border-color: #d97706; }
+  .dot.done.drop { background: #9a9a94; border-color: #9a9a94; }
+  .dot.cur { border-color: #285e8a; box-shadow: 0 0 0 3px #e8f0f6; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>线索层三份清单的增量累积</h1>
+  <p class="sub">场景：建仓后 10 篇文档陆续入库，第 2、5、8 篇被判为线索层，清单内容只由线索层文档追加（条目数为演示值）</p>
+  <div id="main">
+    <svg id="wires" width="1848" height="872"></svg>
+    <div id="queue">
+      <div class="panel-title">入库队列（10 篇）</div>
+    </div>
+    <div id="mid">
+      <div class="l1box idle" id="l1box">
+        <div class="t">L1 分级</div>
+        <div class="s">三维打分 · 决策树</div>
+      </div>
+      <div id="vchip"><span></span></div>
+      <div id="vnote">三份清单不动</div>
+    </div>
+    <div id="lists">
+      <div class="list" id="list-concept">
+        <div class="list-head"><span class="lname">概念提及清单</span><span class="lfile">concept_mentions.yaml</span><span class="lcount" id="cnt-concept">0 词</span></div>
+        <div class="rows" id="rows-concept"></div>
+      </div>
+      <div class="list" id="list-assert">
+        <div class="list-head"><span class="lname">断言日志</span><span class="lfile">assertions.jsonl</span><span class="lcount" id="cnt-assert">0 条</span></div>
+        <div class="rows" id="rows-assert"></div>
+      </div>
+      <div class="list" id="list-lex">
+        <div class="list-head"><span class="lname">检索词表</span><span class="lfile">search_lexicon.yaml</span><span class="lcount" id="cnt-lex">0 个</span></div>
+        <div class="rows" id="rows-lex"></div>
+      </div>
+    </div>
+  </div>
+  <div id="foot">
+    <div id="flabel"></div>
+    <div id="dots"></div>
+  </div>
+</div>
+
+<script>
+// ---------- 数据 ----------
+const DOCS = [
+  { name: "厂商官方手册", kind: "pdf · 487 页", verdict: "main", vlabel: "主证据层" },
+  { name: "博客测评文", kind: "网页 · 博客", verdict: "clue", vlabel: "线索层", ops: {
+    concept: [ {op:"add",id:"c1",term:"教案",freq:1}, {op:"add",id:"c2",term:"LP",freq:1}, {op:"add",id:"c3",term:"课程快照",freq:1} ],
+    assert:  [ {op:"add",id:"a1",aid:"ast_0001",claim:"声称「支持自定义故障脚本」"}, {op:"add",id:"a2",aid:"ast_0002",claim:"声称「OAT 上限 +55°C」"} ],
+    lex:     [ {op:"add",id:"l1",word:"LP",to:"Lesson Plan"}, {op:"add",id:"l2",word:"FF",to:"飞行冻结"} ] } },
+  { name: "厂商官方手册", kind: "pdf · 302 页", verdict: "main", vlabel: "主证据层" },
+  { name: "培训讲义", kind: "ppt · 培训材料", verdict: "supp", vlabel: "补充证据层" },
+  { name: "论坛帖", kind: "网页 · 论坛", verdict: "clue", vlabel: "线索层", ops: {
+    concept: [ {op:"bump",id:"c1",df:2}, {op:"add",id:"c4",term:"滑动面板",freq:1}, {op:"add",id:"c5",term:"燃油冻结",freq:1} ],
+    assert:  [ {op:"add",id:"a3",aid:"ast_0003",claim:"声称「教案可导出 PDF」"}, {op:"add",id:"a4",aid:"ast_0004",claim:"声称「冻结时仍可重新定位」"} ],
+    lex:     [ {op:"add",id:"l3",word:"教案",to:"待关联"}, {op:"add",id:"l4",word:"SLEW",to:"滑动面板"} ] } },
+  { name: "厂商官方手册", kind: "pdf · 615 页", verdict: "main", vlabel: "主证据层" },
+  { name: "行业标准", kind: "pdf · 标准法规", verdict: "supp", vlabel: "补充证据层" },
+  { name: "播客文稿", kind: "转录 · 播客", verdict: "clue", vlabel: "线索层", ops: {
+    concept: [ {op:"add",id:"c6",term:"故障脚本",freq:1}, {op:"add",id:"c7",term:"课程计划",freq:1}, {op:"add",id:"c8",term:"面板手势",freq:1} ],
+    assert:  [ {op:"add",id:"a5",aid:"ast_0005",claim:"声称「支持导出 VR 视景配置」"}, {op:"add",id:"a6",aid:"ast_0006",claim:"声称「SLEW 面板可手势唤醒」"} ],
+    lex:     [ {op:"add",id:"l5",word:"室外温度",to:"OAT"}, {op:"add",id:"l6",word:"课程快照",to:"待关联"} ] } },
+  { name: "厂商官方手册", kind: "pdf · 288 页", verdict: "main", vlabel: "主证据层" },
+  { name: "软文", kind: "网页 · 营销", verdict: "drop", vlabel: "丢弃" },
+];
+
+// ---------- 时间线 ----------
+// intro 5 帧；线索文档 10 帧（t0 到达 t1 判定 t2-4 概念 t5-6 断言 t7-8 检索词 t9 保持）；非线索 2 帧；outro 8 帧
+const INTRO = 5, CLUE_LEN = 10, SKIP_LEN = 2, OUTRO = 8;
+const TOTAL = INTRO + OUTRO + DOCS.reduce((s, d) => s + (d.ops ? CLUE_LEN : SKIP_LEN), 0);
+
+const P = new URLSearchParams(location.search);
+const F = Math.max(0, Math.min(TOTAL - 1, parseInt(P.get("frame") || "0", 10)));
+
+// ---------- 建队列 DOM ----------
+const queueEl = document.getElementById("queue");
+DOCS.forEach((d, i) => {
+  const el = document.createElement("div");
+  el.className = "doc"; el.id = "doc" + i;
+  el.innerHTML = `<span class="dnum">${i + 1}</span><span class="dmeta"><span class="dname">${d.name}</span><br><span class="dkind">${d.kind}</span></span><span class="dverdict ${d.verdict}">${d.vlabel}</span>`;
+  queueEl.appendChild(el);
+});
+const dotsEl = document.getElementById("dots");
+DOCS.forEach((d, i) => {
+  const el = document.createElement("span");
+  el.className = "dot"; el.id = "dot" + i;
+  dotsEl.appendChild(el);
+});
+
+// ---------- 解析当前帧所处段 ----------
+let seg = { type: "intro", t: F };
+let acc = INTRO;
+if (F >= acc) {
+  seg = null;
+  for (let i = 0; i < DOCS.length; i++) {
+    const len = DOCS[i].ops ? CLUE_LEN : SKIP_LEN;
+    if (F < acc + len) { seg = { type: "doc", idx: i, t: F - acc }; break; }
+    acc += len;
+  }
+  if (!seg) seg = { type: "outro", t: F - acc };
+}
+
+// 处理到第几篇（不含当前）
+const doneUpto = seg.type === "doc" ? seg.idx : (seg.type === "outro" ? DOCS.length : 0);
+
+// ---------- 应用清单操作 ----------
+const conceptRows = [], assertRows = [], lexRows = [];
+const flashSet = new Set();   // 本帧高闪的行 id
+
+function applyOp(listKey, o, flash) {
+  const arr = listKey === "concept" ? conceptRows : listKey === "assert" ? assertRows : lexRows;
+  if (o.op === "add") { arr.push(o); if (flash) flashSet.add(o.id); }
+  else if (o.op === "bump") {
+    const r = arr.find(x => x.id === o.id);
+    if (r) { r.freq += o.df; if (flash) flashSet.add(o.id); }
+  }
+}
+function applyDocAll(d) { ["concept", "assert", "lex"].forEach(k => d.ops[k].forEach(o => applyOp(k, o, false))); }
+
+for (let i = 0; i < doneUpto; i++) if (DOCS[i].ops) applyDocAll(DOCS[i]);
+
+if (seg.type === "doc" && DOCS[seg.idx].ops) {
+  const d = DOCS[seg.idx], t = seg.t;
+  d.ops.concept.forEach((o, j) => { if (t >= 2 + j) applyOp("concept", o, true); });
+  d.ops.assert.forEach((o, j) => { if (t >= 5 + j) applyOp("assert", o, true); });
+  d.ops.lex.forEach((o, j) => { if (t >= 7 + j) applyOp("lex", o, true); });
+}
+
+// ---------- 渲染清单 ----------
+function renderRows(listKey, rows, htmlFn) {
+  const box = document.getElementById("rows-" + listKey);
+  box.innerHTML = "";
+  rows.forEach(r => {
+    const el = document.createElement("div");
+    el.className = "row" + (flashSet.has(r.id) ? " flash" : "");
+    el.innerHTML = htmlFn(r);
+    box.appendChild(el);
+  });
+}
+renderRows("concept", conceptRows, r => `<span class="term">${r.term}</span><span class="freq">×${r.freq}</span>`);
+renderRows("assert", assertRows, r => `<span class="aid">${r.aid}</span><span class="claim">${r.claim}</span><span class="chip">未验证</span>`);
+renderRows("lex", lexRows, r => `<span class="term">${r.word}</span><span class="wto">→</span><span class="${r.to === "待关联" ? "wnull" : "wto"}">${r.to}</span>`);
+
+document.getElementById("cnt-concept").textContent = conceptRows.length + " 词";
+document.getElementById("cnt-assert").textContent = assertRows.length + " 条";
+document.getElementById("cnt-lex").textContent = lexRows.length + " 个";
+
+// ---------- 渲染队列与进度点 ----------
+DOCS.forEach((d, i) => {
+  const el = document.getElementById("doc" + i);
+  const dot = document.getElementById("dot" + i);
+  if (i < doneUpto) {
+    el.classList.add("done");
+    el.querySelector(".dverdict").style.visibility = "visible";
+    dot.classList.add("done", d.verdict);
+  } else if (seg.type === "doc" && i === seg.idx) {
+    el.classList.add("active");
+    dot.classList.add("cur");
+    if (seg.t >= 1) el.querySelector(".dverdict").style.visibility = "visible";
+  }
+});
+
+// ---------- 中段：L1 判定 ----------
+const l1box = document.getElementById("l1box");
+const vchip = document.getElementById("vchip");
+const vnote = document.getElementById("vnote");
+if (seg.type === "doc") {
+  const d = DOCS[seg.idx];
+  l1box.classList.remove("idle");
+  if (seg.t >= 1) {
+    vchip.className = d.verdict;
+    vchip.querySelector("span").textContent = d.vlabel;
+    vchip.style.visibility = "visible";
+    if (!d.ops) vnote.style.visibility = "visible";
+  }
+}
+
+// ---------- 连接线 ----------
+const wires = document.getElementById("wires");
+const L1 = { x: 545, y: 436 };           // l1box 中心（mid left 400 + 145，top 336 + 100）
+const LIST_X = 730;
+const LIST_Y = [140, 436, 732];          // 三张卡中心 y（280 高 + 16 间距）
+function path(d, stroke, width, dash) {
+  return `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ""} stroke-linecap="round"/>`;
+}
+function arrowHead(x, y, color) {
+  return `<path d="M ${x} ${y} l -10 -6 l 0 12 Z" fill="${color}"/>`;
+}
+let svg = "";
+// 队列到 L1（仅当前文档段）
+if (seg.type === "doc") {
+  const rowY = 42 + seg.idx * 78 + 33;   // panel-title 42 + 每行 66+12 + 行中心
+  svg += path(`M 360 ${rowY} H 380 V ${L1.y} H 400`, "#285e8a", 2.5);
+  svg += arrowHead(402, L1.y, "#285e8a");
+}
+// L1 到三份清单（仅当前为线索文档且已判定）
+if (seg.type === "doc" && DOCS[seg.idx].ops && seg.t >= 1) {
+  const glow = [seg.t >= 2 && seg.t <= 4, seg.t >= 5 && seg.t <= 6, seg.t >= 7 && seg.t <= 8];
+  LIST_Y.forEach((y, j) => {
+    const on = glow[j];
+    const color = on ? "#d97706" : "#d8d6ce";
+    svg += path(`M 690 ${L1.y} H 710 V ${y} H 726`, color, on ? 3 : 1.8);
+    svg += arrowHead(728, y, color);
+  });
+  // 清单卡片发光
+  if (glow[0]) document.getElementById("list-concept").classList.add("glow");
+  if (glow[1]) document.getElementById("list-assert").classList.add("glow");
+  if (glow[2]) document.getElementById("list-lex").classList.add("glow");
+}
+wires.innerHTML = svg;
+
+// ---------- 底部标签 ----------
+const flabel = document.getElementById("flabel");
+if (seg.type === "intro") {
+  flabel.textContent = "建仓：创建三份空清单，文档陆续入库";
+} else if (seg.type === "outro") {
+  flabel.textContent = `10 篇处理完毕：概念 ${conceptRows.length} 词、断言 ${assertRows.length} 条、检索词 ${lexRows.length} 个，内容只由线索层文档追加`;
+} else {
+  const d = DOCS[seg.idx], k = seg.idx + 1;
+  if (seg.t === 0) flabel.textContent = `第 ${k} 篇 / 共 10 篇 · ${d.name}，L1 分级判定中`;
+  else if (!d.ops) flabel.textContent = `第 ${k} 篇 / 共 10 篇 · ${d.name} → ${d.vlabel}，三份清单不动`;
+  else if (seg.t < 2) flabel.textContent = `第 ${k} 篇 / 共 10 篇 · ${d.name} → 线索层`;
+  else flabel.textContent = `第 ${k} 篇 / 共 10 篇 · 判为线索层，提取线索并增量合并进三份清单`;
+}
+</script>
+</body>
+</html>
