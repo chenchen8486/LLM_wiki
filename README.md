@@ -46,3 +46,16 @@ temp/    开发过程稿与验证截图，可随时清理
 - 文档演进用 Git 管理版本，每次有意义的修改提交一个版本。
 - 修改或新建中文文档，交付前运行 zh-doc-lint 脚本检查格式，命令见 AGENTS.md。
 - 工程层面的完整约定见根目录 AGENTS.md。
+
+## 待做：外部工程参考
+
+　　Google 的 Knowledge Catalog 工程与本项目同属知识当代码管的思路，有三块设计值得后续借鉴，登记为待做（2026-10-21）：
+
+1. 条目时效机制。OKF 的 frontmatter 有 sources（逐源可信度）、verified、stale_after（过期时间）字段。本项目 entries.jsonl 目前缺时效维度，资料会过时，后续可加 stale_after 类字段，让过期条目自动进入复核范围。
+2. 双向同步参考。mdcode 工具实现本地文件与云端元数据服务的 pull、push、status 同步，带冲突检测与 dry-run。本项目将来若迁图数据库或接入服务化存储，可参照其设计。
+3. 自动生成 agent 技能文件。mdcode 能从语义模型自动生成 SKILL.md。本项目的领域字段表加术语登记表已构成一份领域语义模型，将来可据此生成查询 agent 的 SKILL.md，让 agent 开箱即会用本库。
+
+　　参考工程：
+
+- Knowledge Catalog（工具与 agent 示例）：https://github.com/GoogleCloudPlatform/knowledge-catalog
+- Open Knowledge Format（OKF 规范）：https://github.com/GoogleCloudPlatform/open-knowledge-format
