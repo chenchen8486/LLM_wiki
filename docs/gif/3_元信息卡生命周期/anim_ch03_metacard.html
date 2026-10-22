@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>元信息卡生命周期（帧动画源稿 v2）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; background: #f7f7f5; color: #22221f; }
+  #stage { width: 1920px; height: 1080px; padding: 26px 36px 20px; overflow: hidden; position: relative; }
+  h1 { font-size: 30px; letter-spacing: .02em; }
+  .sub { font-size: 15.5px; color: #55554f; margin-top: 6px; }
+  #main { position: relative; height: 880px; margin-top: 12px; }
+
+  /* 左：元信息卡（加大加宽） */
+  #card { position: absolute; left: 0; top: 0; width: 1500px; height: 872px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 14px; padding: 24px 34px; }
+  #card .ct { font-size: 23px; font-weight: 700; }
+  #card .cid { font-family: Consolas, monospace; font-size: 16px; color: #9a9a94; margin-left: 14px; }
+  .sec { margin-top: 20px; }
+  .sec-t { font-size: 16px; font-weight: 700; color: #9a9a94; letter-spacing: .08em; border-bottom: 1px solid #f1f0eb; padding-bottom: 8px; opacity: .25; }
+  .sec.on .sec-t { opacity: 1; color: #55554f; }
+  .frow { display: flex; align-items: baseline; height: 47px; font-size: 20px; opacity: 0; }
+  .frow.on { opacity: 1; }
+  .frow.flash { background: #fdf3e3; border-radius: 6px; }
+  .fk { flex: none; width: 250px; font-family: Consolas, monospace; font-size: 17.5px; color: #9a9a94; }
+  .fv { font-weight: 700; }
+  .fv.dim { font-weight: 400; color: #55554f; }
+  .pill { display: inline-block; font-size: 17px; font-weight: 700; border-radius: 999px; padding: 4px 18px; }
+  .pill.main { background: #e8f0f6; color: #285e8a; }
+  .pill.supp { background: #e9f6ef; color: #1e8e4e; }
+  .pill.clue { background: #fdf3e3; color: #d97706; }
+  .pill.drop { background: #f1f0eb; color: #9a9a94; }
+  .score { display: inline-block; font-size: 18px; font-weight: 700; background: #e8f0f6; color: #285e8a; border-radius: 8px; padding: 4px 14px; margin-right: 10px; }
+
+  /* 右：流程位置（紧凑窄条） */
+  #steps { position: absolute; left: 1530px; top: 0; width: 318px; }
+  .panel-title { font-size: 15px; font-weight: 700; color: #55554f; margin-bottom: 10px; letter-spacing: .06em; }
+  .step { display: flex; align-items: center; gap: 10px; height: 64px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 10px; padding: 0 14px; margin-bottom: 10px; opacity: .4; }
+  .step.cur { opacity: 1; border-color: #c0392b; box-shadow: 0 0 0 3px #fdeaea; }
+  .step.done { opacity: 1; }
+  .snum { flex: none; width: 26px; height: 26px; border-radius: 50%; background: #f1f0eb; color: #55554f; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .step.cur .snum { background: #c0392b; color: #fff; }
+  .step.done .snum { background: #1e8e4e; color: #fff; }
+  .st { font-size: 15.5px; font-weight: 700; }
+  .ss { font-size: 11.5px; color: #9a9a94; margin-top: 2px; }
+  #dlist { margin-top: 18px; }
+  .drow { display: flex; align-items: center; gap: 8px; height: 30px; font-size: 13.5px; color: #9a9a94; }
+  .drow.cur { color: #22221f; font-weight: 700; }
+  .drow .ddot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #d8d6ce; background: #fff; flex: none; }
+  .drow.done .ddot.main { background: #285e8a; border-color: #285e8a; }
+  .drow.done .ddot.supp { background: #1e8e4e; border-color: #1e8e4e; }
+  .drow.done .ddot.clue { background: #d97706; border-color: #d97706; }
+  .drow.done .ddot.drop { background: #9a9a94; border-color: #9a9a94; }
+  .drow.cur .ddot { border-color: #c0392b; box-shadow: 0 0 0 2px #fdeaea; }
+
+  /* 底部 */
+  #foot { display: flex; align-items: center; margin-top: 4px; height: 52px; }
+  #flabel { font-size: 17.5px; font-weight: 700; color: #22221f; }
+  #flabel .hl { font-size: 24px; color: #c0392b; }
+  #fno { position: absolute; right: 38px; bottom: 24px; font-size: 11px; color: #d8d6ce; font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>元信息卡生命周期：一篇文档的全流程档案</h1>
+  <p class="sub">场景：与「总流程图流转」同一批 10 篇文档、同一顺序，逐篇看元信息卡如何随流程逐段生长，分级结论与蒸馏状态都回写到卡上</p>
+  <div id="main">
+    <div id="card">
+      <span class="ct">元信息卡</span><span class="cid" id="cid">meta_card.yaml</span>
+      <div class="sec" id="sec-static">
+        <div class="sec-t">入库登记（L0 归档时写入，只有静态字段）</div>
+        <div id="rows-static"></div>
+      </div>
+      <div class="sec" id="sec-grade">
+        <div class="sec-t">L1 分级回写（不读全文，只看卡片 + 目录 + 抽样）</div>
+        <div id="rows-grade"></div>
+      </div>
+      <div class="sec" id="sec-distill">
+        <div class="sec-t">后续处理回写</div>
+        <div id="rows-distill"></div>
+      </div>
+    </div>
+    <div id="steps">
+      <div class="panel-title">流程位置</div>
+    </div>
+  </div>
+  <div id="foot"><div id="flabel"></div></div>
+  <div id="fno"></div>
+</div>
+
+<script>
+// ---------- 与 GIF-2 同批次同顺序的 10 篇文档 ----------
+const DOCS = [
+  { name: "CAE IOS 用户手册", verdict: "main", vlabel: "主证据层", entries: "12 条（功能点 5 · UI 3 · 流程 2 · 接口 1 · 约束 1）",
+    static: [ ["doc_id", "doc_01"], ["title", "CAE A320 Neo IOS User Manual"], ["doc_type", "操作手册"],
+              ["source_org", "CAE"], ["publish_date", "2023-06"], ["collect_date", "2026-08-01"],
+              ["language", "en"], ["has_native_toc", "true"], ["page_or_line_count", "487"] ],
+    grade: [ ["scores", "权5 · 相5 · 密5", "score"], ["layer", "主证据层", "main"], ["graded_by", "LLM 自动打标 + 人工抽检"] ],
+    distill: [ ["distill_status", "已蒸馏", "main"], ["entries_count", ""] ] },
+  { name: "博客测评文", verdict: "clue", vlabel: "线索层", entries: null,
+    static: [ ["doc_id", "doc_02"], ["title", "聊聊 IOS 上手体验"], ["doc_type", "博客"],
+              ["source_org", "个人博主"], ["publish_date", "2024-01"], ["collect_date", "2026-08-02"],
+              ["language", "zh"], ["has_native_toc", "false（LLM 补建目录）"], ["page_or_line_count", "1"] ],
+    grade: [ ["scores", "权2 · 相4 · 密2", "score"], ["layer", "线索层", "clue"], ["graded_by", "LLM 自动打标"] ],
+    distill: [ ["distill_status", "不进证据链", "clue"], ["contributed", "概念提及 3 词 · 未验证断言 2 条 · 检索词 2 个"] ] },
+  { name: "培训讲义", verdict: "supp", vlabel: "补充证据层", entries: "4 条（条目须标置信度）",
+    static: [ ["doc_id", "doc_03"], ["title", "IOS 操作培训讲义"], ["doc_type", "培训材料"],
+              ["source_org", "某培训机构"], ["publish_date", "2022-03"], ["collect_date", "2026-08-03"],
+              ["language", "zh"], ["has_native_toc", "false（LLM 补建目录）"], ["page_or_line_count", "86"] ],
+    grade: [ ["scores", "权3 · 相4 · 密3", "score"], ["layer", "补充证据层", "supp"], ["graded_by", "LLM 自动打标"] ],
+    distill: [ ["distill_status", "已蒸馏", "supp"], ["entries_count", ""] ] },
+  { name: "民航新闻稿", verdict: "drop", vlabel: "丢弃", entries: null,
+    static: [ ["doc_id", "doc_04"], ["title", "某航司引进新模拟机"], ["doc_type", "新闻稿"],
+              ["source_org", "媒体"], ["publish_date", "2025-11"], ["collect_date", "2026-08-04"],
+              ["language", "zh"], ["has_native_toc", "false（LLM 补建目录）"], ["page_or_line_count", "1"] ],
+    grade: [ ["scores", "权2 · 相2 · 密1", "score"], ["layer", "丢弃", "drop"], ["graded_by", "规则直判（文档类型 + 来源）"] ],
+    distill: [ ["distill_status", "流程结束", "drop"], ["note", "只保留本卡，不再追加任何内容"] ] },
+  { name: "A320 FCOM 节选", verdict: "main", vlabel: "主证据层", entries: "9 条",
+    static: [ ["doc_id", "doc_05"], ["title", "A320 FCOM（节选）"], ["doc_type", "标准法规 / 手册"],
+              ["source_org", "Airbus"], ["publish_date", "2023-01"], ["collect_date", "2026-08-05"],
+              ["language", "en"], ["has_native_toc", "true"], ["page_or_line_count", "210"] ],
+    grade: [ ["scores", "权5 · 相5 · 密4", "score"], ["layer", "主证据层", "main"], ["graded_by", "LLM 自动打标 + 人工抽检"] ],
+    distill: [ ["distill_status", "已蒸馏", "main"], ["entries_count", ""] ] },
+  { name: "播客转录稿", verdict: "clue", vlabel: "线索层", entries: null,
+    static: [ ["doc_id", "doc_06"], ["title", "模拟机教官访谈转录"], ["doc_type", "播客转录"],
+              ["source_org", "某播客"], ["publish_date", "2024-06"], ["collect_date", "2026-08-06"],
+              ["language", "zh"], ["has_native_toc", "false（LLM 补建目录）"], ["page_or_line_count", "1"] ],
+    grade: [ ["scores", "权1 · 相3 · 密2", "score"], ["layer", "线索层", "clue"], ["graded_by", "LLM 自动打标"] ],
+    distill: [ ["distill_status", "不进证据链", "clue"], ["contributed", "概念提及 3 词 · 未验证断言 2 条 · 检索词 2 个"] ] },
+  { name: "论坛经验帖", verdict: "supp", vlabel: "补充证据层", entries: "3 条（条目须标置信度）",
+    static: [ ["doc_id", "doc_07"], ["title", "IOS 日常操作经验汇总"], ["doc_type", "论坛帖"],
+              ["source_org", "社区论坛"], ["publish_date", "2023-09"], ["collect_date", "2026-08-07"],
+              ["language", "zh"], ["has_native_toc", "false（LLM 补建目录）"], ["page_or_line_count", "1"] ],
+    grade: [ ["scores", "权2 · 相4 · 密3", "score"], ["layer", "补充证据层", "supp"], ["graded_by", "LLM 自动打标"] ],
+    distill: [ ["distill_status", "已蒸馏", "supp"], ["entries_count", ""] ] },
+  { name: "IOS SDK 接口文档", verdict: "main", vlabel: "主证据层", entries: "7 条",
+    static: [ ["doc_id", "doc_08"], ["title", "IOS SDK Interface Reference"], ["doc_type", "SDK文档"],
+              ["source_org", "CAE"], ["publish_date", "2023-06"], ["collect_date", "2026-08-08"],
+              ["language", "en"], ["has_native_toc", "true"], ["page_or_line_count", "156"] ],
+    grade: [ ["scores", "权5 · 相4 · 密5", "score"], ["layer", "主证据层", "main"], ["graded_by", "LLM 自动打标 + 人工抽检"] ],
+    distill: [ ["distill_status", "已蒸馏", "main"], ["entries_count", ""] ] },
+  { name: "行业综述文章", verdict: "clue", vlabel: "线索层", entries: null,
+    static: [ ["doc_id", "doc_09"], ["title", "训练模拟器行业综述"], ["doc_type", "综述"],
+              ["source_org", "行业媒体"], ["publish_date", "2024-03"], ["collect_date", "2026-08-09"],
+              ["language", "zh"], ["has_native_toc", "false（LLM 补建目录）"], ["page_or_line_count", "1"] ],
+    grade: [ ["scores", "权2 · 相3 · 密2", "score"], ["layer", "线索层", "clue"], ["graded_by", "LLM 自动打标"] ],
+    distill: [ ["distill_status", "不进证据链", "clue"], ["contributed", "概念提及 2 词 · 未验证断言 2 条 · 检索词 2 个"] ] },
+  { name: "旧版手册 v9", verdict: "supp", vlabel: "补充证据层", entries: "5 条（旧版本差异，标置信度）",
+    static: [ ["doc_id", "doc_10"], ["title", "CAE IOS User Manual v9"], ["doc_type", "操作手册（旧版）"],
+              ["source_org", "CAE"], ["publish_date", "2019-05"], ["collect_date", "2026-08-10"],
+              ["language", "en"], ["has_native_toc", "true"], ["page_or_line_count", "402"] ],
+    grade: [ ["scores", "权3 · 相4 · 密3", "score"], ["layer", "补充证据层", "supp"], ["graded_by", "LLM 自动打标"] ],
+    distill: [ ["distill_status", "已蒸馏", "supp"], ["entries_count", ""] ] },
+];
+DOCS.forEach(d => { if (d.entries !== null) d.distill[1][1] = d.entries; });
+
+const STEPS = [
+  { t: "L0 归档", s: "登记静态字段" },
+  { t: "L1 分级", s: "三维打分回写" },
+  { t: "分流", s: "layer 标签落定" },
+  { t: "后续处理", s: "蒸馏 / 线索 / 终止" },
+];
+
+// 帧排期与 GIF-2 完全同步：主/补 15 帧，线索 13 帧，丢弃 9 帧，INTRO 5 + OUTRO 8
+// GIF-2 节点到达时刻（t 为篇内帧号）：归档 k=2 → t3-4，分级 k=3 → t5-6，分流 k=4 → t7-8，
+// 对齐 k=5 → t9-10，蒸馏 k=6 → t11-12，图谱 k=7 → t13-14
+function docLen(d) { return d.verdict === "main" || d.verdict === "supp" ? 15 : d.verdict === "clue" ? 13 : 9; }
+const DOCLEN = DOCS.map(docLen);
+const INTRO = 5, OUTRO = 8;
+const TOTAL = INTRO + OUTRO + DOCLEN.reduce((a, b) => a + b, 0);  // 151，与 GIF-2 相同
+
+const P = new URLSearchParams(location.search);
+const F = Math.max(0, Math.min(TOTAL - 1, parseInt(P.get("frame") || "0", 10)));
+
+let seg = { type: "intro" }, acc = INTRO;
+if (F >= acc) {
+  seg = null;
+  for (let i = 0; i < DOCS.length; i++) {
+    if (F < acc + DOCLEN[i]) { seg = { type: "doc", idx: i, t: F - acc }; break; }
+    acc += DOCLEN[i];
+  }
+  if (!seg) seg = { type: "outro" };
+}
+
+// ---------- 右侧步骤 + 文档清单 ----------
+const stepsEl = document.getElementById("steps");
+STEPS.forEach((s, i) => {
+  const el = document.createElement("div");
+  el.className = "step"; el.id = "step" + i;
+  el.innerHTML = `<span class="snum">${i + 1}</span><span><span class="st">${s.t}</span><br><span class="ss">${s.s}</span></span>`;
+  stepsEl.appendChild(el);
+});
+const dl = document.createElement("div");
+dl.id = "dlist";
+dl.innerHTML = '<div class="panel-title">同批文档（与总流程图一致）</div>';
+DOCS.forEach((d, i) => {
+  dl.innerHTML += `<div class="drow" id="drow${i}"><span class="ddot ${d.verdict}"></span><span>${i + 1}. ${d.name}</span></div>`;
+});
+stepsEl.appendChild(dl);
+
+// ---------- 渲染 ----------
+function frow(k, v, cls, flash) {
+  let vv;
+  if (cls === "score") vv = v.split(" · ").map(x => `<span class="score">${x}</span>`).join("");
+  else if (["main", "supp", "clue", "drop"].includes(cls)) vv = `<span class="pill ${cls}">${v}</span>`;
+  else vv = `<span class="fv ${cls === "dim" ? "dim" : ""}">${v}</span>`;
+  return `<div class="frow on ${flash ? "flash" : ""}"><span class="fk">${k}</span>${vv}</div>`;
+}
+
+const flabel = document.getElementById("flabel");
+if (seg.type === "doc") {
+  const d = DOCS[seg.idx], t = seg.t;
+  document.getElementById("cid").textContent = d.static[0][1] + " / meta_card.yaml";
+
+  // 静态字段：t3 起（对应 GIF-2 到达归档节点），t3 出 5 行、t4 出齐 9 行
+  const showStatic = t >= 3 ? Math.min(d.static.length, 5 + (t - 3) * 4) : 0;
+  document.getElementById("rows-static").innerHTML = d.static.map((r, j) =>
+    j < showStatic ? frow(r[0], r[1], "dim", j >= showStatic - 4 && t <= 4) : "").join("");
+  if (t >= 3) document.getElementById("sec-static").classList.add("on");
+
+  // 分级：t5 打分（到达 L1 分级），t7 分流结论（到达层节点）
+  let ghtml = "";
+  if (t >= 5) ghtml += frow(d.grade[0][0], d.grade[0][1], "score", t === 5);
+  if (t >= 7) ghtml += frow(d.grade[1][0], d.grade[1][1], d.grade[1][2], t === 7);
+  if (t >= 7) ghtml += frow(d.grade[2][0], d.grade[2][1], "dim", false);
+  document.getElementById("rows-grade").innerHTML = ghtml;
+  if (t >= 5) document.getElementById("sec-grade").classList.add("on");
+
+  // 后续处理：主/补在 t11（到达蒸馏），线索在 t9（到达对齐），丢弃在 t8（分流后定格终止）
+  const dt = d.verdict === "main" || d.verdict === "supp" ? 11 : d.verdict === "clue" ? 9 : 8;
+  let dhtml = "";
+  if (t >= dt) {
+    dhtml += frow(d.distill[0][0], d.distill[0][1], d.distill[0][2] || "dim", t === dt);
+    dhtml += frow(d.distill[1][0], d.distill[1][1], "dim", false);
+  }
+  document.getElementById("rows-distill").innerHTML = dhtml;
+  if (t >= dt) document.getElementById("sec-distill").classList.add("on");
+
+  // 步骤：与 GIF-2 节点同步（采集/结构化 t0-2 → 归档 t3-4 → 分级 t5-6 → 分流 t7-8 → 后续 t9+）
+  const cur = t <= 2 ? 0 : t <= 4 ? 0 : t <= 6 ? 1 : t <= 8 ? 2 : 3;
+  STEPS.forEach((s, i) => {
+    const el = document.getElementById("step" + i);
+    if (i < cur) el.classList.add("done");
+    else if (i === cur) el.classList.add("cur");
+  });
+  DOCS.forEach((dd, i) => {
+    const el = document.getElementById("drow" + i);
+    if (i < seg.idx) el.classList.add("done");
+    else if (i === seg.idx) el.classList.add("cur");
+  });
+
+  const PH = t <= 2 ? "L0 采集中，归档后建卡" : t <= 4 ? "独立归档，登记静态字段" : t <= 6 ? "L1 三维打分回写" : t <= 8 ? `分流结论回写：${d.vlabel}` : d.verdict === "drop" ? "流程结束，只保留本卡" : "后续处理回写，本卡定格";
+  flabel.innerHTML = `第 ${seg.idx + 1} 篇 / 共 10 篇 · ${d.name}：<span class="hl">${PH}</span>`;
+} else if (seg.type === "intro") {
+  flabel.textContent = "元信息卡 = 文档在管道里的全生命周期档案，随流程逐段生长";
+} else {
+  flabel.textContent = "10 张卡全部定格：分级、分流、蒸馏状态均回写于卡，看卡即知每篇文档走到哪一步";
+  DOCS.forEach((dd, i) => document.getElementById("drow" + i).classList.add("done"));
+  STEPS.forEach((s, i) => document.getElementById("step" + i).classList.add("done"));
+}
+
+document.getElementById("fno").textContent = "frame " + F + " / " + (TOTAL - 1);
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>终态资产总览（帧动画源稿 v2，与 GIF-2 同源）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; background: #f7f7f5; color: #22221f; }
+  #stage { width: 1920px; height: 1080px; padding: 26px 36px 20px; overflow: hidden; position: relative; }
+  h1 { font-size: 30px; letter-spacing: .02em; }
+  .sub { font-size: 15.5px; color: #55554f; margin-top: 6px; }
+  #main { position: relative; height: 880px; margin-top: 12px; }
+
+  #tbl { position: absolute; left: 0; top: 0; width: 1848px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 14px; padding: 18px 26px; }
+  .t-head { display: flex; align-items: baseline; gap: 12px; }
+  .t-title { font-size: 20px; font-weight: 700; }
+  .t-sub2 { font-size: 14px; color: #9a9a94; }
+  .t-count { margin-left: auto; font-size: 16px; font-weight: 700; color: #285e8a; background: #e8f0f6; border-radius: 999px; padding: 3px 16px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th { font-size: 14px; color: #9a9a94; text-align: left; padding: 9px 12px; border-bottom: 2px solid #f1f0eb; }
+  td { font-size: 16px; padding: 12px 12px; border-bottom: 1px solid #f1f0eb; vertical-align: middle; }
+  tr.asset { opacity: .22; }
+  tr.asset.on { opacity: 1; }
+  tr.asset.flash { background: #fdf3e3; }
+  .aname { font-weight: 700; font-size: 16.5px; }
+  .afile { font-family: Consolas, monospace; font-size: 12.5px; color: #9a9a94; margin-top: 3px; }
+  .qty { display: inline-block; font-size: 15px; font-weight: 700; color: #285e8a; background: #e8f0f6; border-radius: 999px; padding: 3px 14px; white-space: nowrap; }
+  .use { color: #55554f; font-size: 15px; line-height: 1.45; }
+  .tag { display: inline-block; font-size: 12.5px; font-weight: 700; border-radius: 6px; padding: 2px 9px; margin-left: 8px; }
+  .tag.main { background: #e8f0f6; color: #285e8a; }
+  .tag.clue { background: #fdf3e3; color: #d97706; }
+
+  /* 底部 */
+  #foot { display: flex; align-items: center; margin-top: 4px; height: 52px; }
+  #flabel { font-size: 17.5px; font-weight: 700; color: #22221f; }
+  #flabel .hl { font-size: 24px; color: #c0392b; }
+  #dots { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #d8d6ce; background: #fff; }
+  .dot.done.main { background: #285e8a; border-color: #285e8a; }
+  .dot.done.supp { background: #1e8e4e; border-color: #1e8e4e; }
+  .dot.done.clue { background: #d97706; border-color: #d97706; }
+  .dot.done.drop { background: #9a9a94; border-color: #9a9a94; }
+  .dot.cur { border-color: #c0392b; box-shadow: 0 0 0 2px #fdeaea; }
+  #fno { position: absolute; right: 38px; bottom: 24px; font-size: 11px; color: #d8d6ce; font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>终态资产总览：10 篇文档走完管道后剩下什么</h1>
+  <p class="sub">与「总流程图流转」同一批 10 篇文档、同一顺序：资产表随每篇过卡实时增长，数字与各分镜终态严格对齐。纯文件搭起来的数据库，靠 ID 互挂，Git 管理（数量为演示值）</p>
+  <div id="main">
+    <div id="tbl">
+      <div class="t-head">
+        <span class="t-title">知识库资产清单</span>
+        <span class="t-sub2">10 篇文档入库（3 主证据 · 3 补充证据 · 3 线索 · 1 丢弃）</span>
+        <span class="t-count" id="cnt">0 / 8 类</span>
+      </div>
+      <table>
+        <thead><tr><th style="width:360px">产物</th><th style="width:300px">数量</th><th style="width:280px">粒度</th><th>内容与作用</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="foot"><div id="flabel"></div><div id="dots"></div></div>
+  <div id="fno"></div>
+</div>
+
+<script>
+// ---------- 与 GIF-2 同批次同顺序的 10 篇文档 ----------
+// grow：本篇过卡对各资产行的增量，t 为篇内帧（归档 t3、对齐 t9-10、蒸馏 t11、核查 t13-14）
+const DOCS = [
+  { name: "CAE IOS 用户手册", verdict: "main", vlabel: "主证据层",
+    grow: [ { t: 3, k: "file" }, { t: 9, terms: 3, alias: 3 }, { t: 11, entries: 12 } ] },
+  { name: "博客测评文", verdict: "clue", vlabel: "线索层",
+    grow: [ { t: 3, k: "file" }, { t: 9, concepts: 3, asserts: 2, lex: 2 }, { t: 10, alias: 2 } ] },
+  { name: "培训讲义", verdict: "supp", vlabel: "补充证据层",
+    grow: [ { t: 3, k: "file" }, { t: 9, terms: 1, alias: 1 }, { t: 11, entries: 4 } ] },
+  { name: "民航新闻稿", verdict: "drop", vlabel: "丢弃",
+    grow: [ { t: 3, k: "file" } ] },
+  { name: "A320 FCOM 节选", verdict: "main", vlabel: "主证据层",
+    grow: [ { t: 3, k: "file" }, { t: 9, terms: 1, alias: 1 }, { t: 11, entries: 9 }, { t: 14, conflicts: 1 } ] },
+  { name: "播客转录稿", verdict: "clue", vlabel: "线索层",
+    grow: [ { t: 3, k: "file" }, { t: 9, concepts: 3, asserts: 2, lex: 2 }, { t: 10, alias: 1 } ] },
+  { name: "论坛经验帖", verdict: "supp", vlabel: "补充证据层",
+    grow: [ { t: 3, k: "file" }, { t: 10, alias: 1 }, { t: 11, entries: 3 }, { t: 13, conflicts: 1 } ] },
+  { name: "IOS SDK 接口文档", verdict: "main", vlabel: "主证据层",
+    grow: [ { t: 3, k: "file" }, { t: 9, terms: 1 }, { t: 11, entries: 7 } ] },
+  { name: "行业综述文章", verdict: "clue", vlabel: "线索层",
+    grow: [ { t: 3, k: "file" }, { t: 9, concepts: 3, asserts: 2, lex: 2 }, { t: 10, alias: 1 } ] },
+  { name: "旧版手册 v9", verdict: "supp", vlabel: "补充证据层",
+    grow: [ { t: 3, k: "file" }, { t: 9, terms: 1, alias: 1 }, { t: 11, entries: 5 } ] },
+];
+const OUTRO_BLIND_T = 2;  // 结尾盘点：ast_0003 查无落盲区
+
+// ---------- 帧排期（与 GIF-2 同步） ----------
+const INTRO = 5, OUTRO = 8;
+const DOCLEN = DOCS.map(d => d.verdict === "drop" ? 9 : d.verdict === "clue" ? 13 : 15);
+const TOTAL = INTRO + OUTRO + DOCLEN.reduce((a, b) => a + b, 0);
+
+const P = new URLSearchParams(location.search);
+const F = Math.max(0, Math.min(TOTAL - 1, parseInt(P.get("frame") || "0", 10)));
+
+let seg = { type: "intro" }, acc = INTRO;
+if (F >= acc) {
+  seg = null;
+  for (let i = 0; i < DOCS.length; i++) {
+    if (F < acc + DOCLEN[i]) { seg = { type: "doc", idx: i, t: F - acc }; break; }
+    acc += DOCLEN[i];
+  }
+  if (!seg) seg = { type: "outro" };
+}
+
+// ---------- 资产累计状态 ----------
+const S = { files: 0, cards: 0, entries: 0, terms: 0, alias: 0, concepts: 0, asserts: 0, lex: 0, conflicts: 0, blinds: 0 };
+const flashRows = new Set();
+// 行号：0 文件夹 1 元信息卡 2 蒸馏条目 3 术语 4 线索清单 5 冲突 6 盲区 7 图谱
+function applyGrow(g, flashing) {
+  if (g.k === "file") { S.files++; S.cards++; if (flashing) { flashRows.add(0); flashRows.add(1); } }
+  if (g.terms) { S.terms += g.terms; if (flashing) flashRows.add(3); }
+  if (g.alias) { S.alias += g.alias; if (flashing) flashRows.add(3); }
+  if (g.entries) { S.entries += g.entries; if (flashing) { flashRows.add(2); flashRows.add(7); } }
+  if (g.concepts) { S.concepts += g.concepts; S.asserts += g.asserts; S.lex += g.lex; if (flashing) flashRows.add(4); }
+  if (g.conflicts) { S.conflicts += g.conflicts; if (flashing) flashRows.add(5); }
+  if (g.blinds) { S.blinds += g.blinds; if (flashing) flashRows.add(6); }
+}
+
+const doneUpto = seg.type === "doc" ? seg.idx : (seg.type === "outro" ? DOCS.length : 0);
+for (let i = 0; i < doneUpto; i++) DOCS[i].grow.forEach(g => applyGrow(g, false));
+if (seg.type === "doc") {
+  DOCS[seg.idx].grow.forEach(g => { if (seg.t >= g.t) applyGrow(g, seg.t < g.t + 2); });
+} else if (seg.type === "outro") {
+  const t = seg.t = F - (TOTAL - OUTRO);
+  if (t >= OUTRO_BLIND_T) applyGrow({ blinds: 1 }, t < OUTRO_BLIND_T + 2);
+}
+
+// ---------- 渲染资产表 ----------
+const ASSETS = [
+  { name: "文档文件夹", file: "docs/（原文 + 结构化 MD + 目录索引）", qty: () => `${S.files} 个`, lit: () => S.files > 0,
+    gran: "每篇文档一个，一一对应", use: "未经裁剪的原始语料，只进不出的只读事实库（原料仓）" },
+  { name: "元信息卡", file: "meta_card.yaml（各文档文件夹内）", qty: () => `${S.cards} 张`, lit: () => S.cards > 0,
+    gran: "每篇文档一张", use: "记录是什么、谁出的、被判去哪一层，分级结论与蒸馏状态回写于此（文档名片）" },
+  { name: "蒸馏条目", file: "entries.jsonl", qty: () => `1 份 · ${S.entries} 条`, lit: () => S.entries > 0, tag: ["main", "主产物"],
+    gran: "全局一份，每条知识一行", use: "从主/补证据逐条蒸出的规格：功能点、UI、流程、接口、约束，每条带来源、置信度、状态" },
+  { name: "术语登记表", file: "term_registry.yaml", qty: () => `1 份 · ${S.terms} 条 · ${S.alias} 别名`, lit: () => S.terms > 0,
+    gran: "全局共享，跨全部文档", use: "同一个东西在各文档里的所有叫法归一到规范名，含同名异物辨析，合并永远人工确认" },
+  { name: "线索层清单", file: "concept_mentions / assertions / search_lexicon", qty: () => `3 份（概念 ${S.concepts} 词 · 断言 ${S.asserts} 条 · 检索词 ${S.lex} 个）`, lit: () => S.concepts > 0, tag: ["clue", "永不作数"],
+    gran: "全局共享，从线索层文档聚合", use: "只能指路，与证据链严格隔离；断言逐条接受核查走三态闭环" },
+  { name: "冲突记录", file: "conflicts.jsonl", qty: () => `1 份 · ${S.conflicts} 条`, lit: () => S.conflicts > 0,
+    gran: "全局共享，每条冲突一行", use: "文档之间说法不一致的地方，含仲裁结论；公开资料错了本身也是情报" },
+  { name: "盲区清单", file: "blind_spots.md", qty: () => `1 份 · ${S.blinds} 项`, lit: () => S.blinds > 0,
+    gran: "全局共享", use: "已确认的知识缺口：断言查无实据处、还没蒸出条目的章节，指导定向采集" },
+  { name: "知识图谱", file: "初期即 entries.jsonl 本身", qty: () => `1 份 · ${S.entries} 条索引`, lit: () => S.entries > 0,
+    gran: "蒸馏条目的索引", use: "记录谁出自谁、谁依赖谁、谁和谁冲突，支撑规格 / 风险 / 覆盖三类逆向查询" },
+];
+
+let litCnt = 0;
+document.getElementById("rows").innerHTML = ASSETS.map((a, i) => {
+  const on = a.lit(); if (on) litCnt++;
+  const tag = a.tag ? `<span class="tag ${a.tag[0]}">${a.tag[1]}</span>` : "";
+  return `<tr class="asset ${on ? "on" : ""} ${flashRows.has(i) ? "flash" : ""}">
+    <td><div class="aname">${a.name}${tag}</div><div class="afile">${a.file}</div></td>
+    <td>${on ? `<span class="qty">${a.qty()}</span>` : ""}</td>
+    <td class="use">${a.gran}</td><td class="use">${a.use}</td></tr>`;
+}).join("");
+document.getElementById("cnt").textContent = litCnt + " / 8 类";
+
+// 底部圆点
+const dotsEl = document.getElementById("dots");
+DOCS.forEach((d, i) => {
+  const cls = seg.type === "outro" ? "dot done " + d.verdict
+    : seg.type === "doc" ? (i < seg.idx ? "dot done " + d.verdict : i === seg.idx ? "dot cur" : "dot")
+    : "dot";
+  dotsEl.innerHTML += `<span class="${cls}"></span>`;
+});
+
+// ---------- 底部标签 ----------
+const flabel = document.getElementById("flabel");
+if (seg.type === "intro") {
+  flabel.textContent = "10 篇文档陆续入库，资产表随每篇过卡逐格点亮，口径与各分镜一致";
+} else if (seg.type === "outro") {
+  if (seg.t < OUTRO_BLIND_T) flabel.textContent = "全部文档过卡完毕：盘点仍无实据的未决断言";
+  else if (seg.t < OUTRO_BLIND_T + 2) flabel.innerHTML = `ast_0003 全库查无实据：<span class="hl">判定查无，盲区清单 +1</span>`;
+  else flabel.textContent = "8 类资产齐备：原料仓、证据链、线索、缺口各就各位，Git 管理，可支撑三类逆向查询";
+} else {
+  const d = DOCS[seg.idx], t = seg.t;
+  let PH;
+  if (d.verdict === "drop") {
+    PH = t <= 2 ? "L0 采集中" : t <= 4 ? "归档：docs/ +1，元信息卡建卡" : t <= 6 ? "L1 分级" : "分流为丢弃：只留文件夹与元信息卡，其余表不动";
+  } else if (d.verdict === "clue") {
+    PH = t <= 2 ? "L0 采集中" : t <= 4 ? "归档：docs/ +1，元信息卡建卡" : t <= 6 ? "L1 分级" : t <= 8 ? "分流：线索层"
+      : t === 9 ? "线索层过卡：概念 +3 词、断言 +2 条、检索词 +2 个"
+      : t === 10 ? "别名归并进术语登记表" : "本篇贡献完毕";
+  } else {
+    const g9 = d.grow.find(g => g.t === 9), g11 = d.grow.find(g => g.t === 11), gc = d.grow.find(g => g.conflicts);
+    const termTxt = g9 ? `+${g9.terms || 0} 条目 / +${g9.alias || 0} 别名` : "无新词";
+    PH = t <= 2 ? "L0 采集中" : t <= 4 ? "归档：docs/ +1，元信息卡建卡" : t <= 6 ? "L1 分级" : t <= 8 ? `分流：${d.vlabel}`
+      : t <= 10 ? `术语对齐：${termTxt}`
+      : t <= 12 ? `蒸馏：entries +${g11 ? g11.entries : 0} 条，图谱索引同步增长`
+      : gc && t >= gc.t ? "断言核查：证伪成立，冲突记录 +1"
+      : "本篇定格，资产落账";
+  }
+  flabel.innerHTML = `第 ${seg.idx + 1} 篇 / 共 10 篇 · ${d.name}：<span class="hl">${PH}</span>`;
+}
+
+document.getElementById("fno").textContent = "frame " + F + " / " + (TOTAL - 1);
+</script>
+</body>
+</html>

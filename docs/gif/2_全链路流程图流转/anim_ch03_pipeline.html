@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>全链路流程图流转（帧动画源稿 v1）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; background: #f7f7f5; color: #22221f; }
+  #stage { width: 1920px; height: 1080px; padding: 26px 36px 20px; overflow: hidden; position: relative; }
+  h1 { font-size: 30px; letter-spacing: .02em; }
+  .sub { font-size: 15.5px; color: #55554f; margin-top: 6px; }
+  #main { position: relative; height: 880px; margin-top: 12px; }
+
+  /* 左：入库队列 */
+  #queue { position: absolute; left: 0; top: 0; width: 290px; }
+  .panel-title { font-size: 16px; font-weight: 700; color: #55554f; margin-bottom: 10px; letter-spacing: .06em; }
+  .doc { display: flex; align-items: center; gap: 9px; height: 62px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 10px; padding: 0 10px; margin-bottom: 10px; opacity: .45; }
+  .doc.active { opacity: 1; border-color: #285e8a; box-shadow: 0 0 0 3px #e8f0f6; }
+  .doc.done { opacity: 1; }
+  .dnum { flex: none; width: 26px; height: 26px; border-radius: 50%; background: #f1f0eb; color: #55554f; font-size: 13.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .doc.active .dnum { background: #285e8a; color: #fff; }
+  .dmeta { flex: 1; min-width: 0; }
+  .dname { font-size: 15.5px; font-weight: 700; }
+  .dkind { font-size: 12px; color: #9a9a94; margin-top: 2px; }
+  .dverdict { flex: none; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; visibility: hidden; }
+  .dverdict.main { background: #e8f0f6; color: #285e8a; }
+  .dverdict.supp { background: #e9f6ef; color: #1e8e4e; }
+  .dverdict.clue { background: #fdf3e3; color: #d97706; }
+  .dverdict.drop { background: #f1f0eb; color: #9a9a94; }
+
+  /* 流程图节点 */
+  .node { position: absolute; width: 150px; height: 66px; background: #fff; border: 2px solid #d8d6ce; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translate(-50%, -50%); }
+  .node .nt { font-size: 16.5px; font-weight: 700; }
+  .node .ns { font-size: 11.5px; color: #9a9a94; margin-top: 3px; }
+  .node.glow { border-color: #c0392b; box-shadow: 0 0 0 5px #fdeaea; }
+  .node.branch.main { border-color: #285e8a; }
+  .node.branch.supp { border-color: #1e8e4e; }
+  .node.branch.clue { border-color: #d97706; border-style: dashed; }
+  .node.branch.drop { border-color: #c8c6be; }
+  .node.branch.main.glow { border-color: #c0392b; }
+  .node.branch.supp.glow { border-color: #c0392b; }
+  .node.branch.clue.glow { border-color: #c0392b; border-style: solid; }
+  .node.branch.drop.glow { border-color: #c0392b; }
+  .node .badge { position: absolute; top: -13px; right: -14px; font-size: 12.5px; font-weight: 700; background: #22221f; color: #fff; border-radius: 999px; padding: 2px 9px; display: none; }
+  .node .badge.show { display: block; }
+
+  /* 底部元信息卡条 */
+  #card { position: absolute; left: 320px; top: 700px; width: 1210px; height: 160px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 12px; padding: 12px 18px; }
+  #card .ct { font-size: 15px; font-weight: 700; color: #55554f; letter-spacing: .06em; }
+  #card .cid { font-family: Consolas, monospace; font-size: 13px; color: #9a9a94; margin-left: 10px; }
+  #cgroups { display: flex; gap: 26px; margin-top: 14px; }
+  .cgroup { opacity: .18; }
+  .cgroup.on { opacity: 1; }
+  .cgroup .gt { font-size: 12.5px; color: #9a9a94; margin-bottom: 8px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip2 { font-size: 13.5px; background: #f1f0eb; border-radius: 8px; padding: 5px 11px; }
+  .chip2.score { background: #e8f0f6; color: #285e8a; font-weight: 700; }
+  .chip2.verdict-main { background: #e8f0f6; color: #285e8a; font-weight: 700; }
+  .chip2.verdict-supp { background: #e9f6ef; color: #1e8e4e; font-weight: 700; }
+  .chip2.verdict-clue { background: #fdf3e3; color: #d97706; font-weight: 700; }
+  .chip2.verdict-drop { background: #f1f0eb; color: #9a9a94; font-weight: 700; }
+
+  /* 底部进度 */
+  #foot { display: flex; align-items: center; margin-top: 4px; height: 52px; }
+  #flabel { font-size: 17.5px; font-weight: 700; color: #22221f; }
+  #flabel .hl { font-size: 24px; color: #c0392b; }
+  #dots { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #d8d6ce; background: #fff; }
+  .dot.done.main { background: #285e8a; border-color: #285e8a; }
+  .dot.done.supp { background: #1e8e4e; border-color: #1e8e4e; }
+  .dot.done.clue { background: #d97706; border-color: #d97706; }
+  .dot.done.drop { background: #9a9a94; border-color: #9a9a94; }
+  .dot.cur { border-color: #285e8a; box-shadow: 0 0 0 3px #e8f0f6; }
+  #fno { position: absolute; right: 38px; bottom: 24px; font-size: 11px; color: #d8d6ce; font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1>全链路流程图流转：10 篇文档走完整条管道</h1>
+  <p class="sub">场景：10 篇文档随机次序入库，逐篇走完 L0 采集 → 结构化 → 归档 → L1 分级 → 分流 → L1.5 术语对齐 → L2 蒸馏 → L3 图谱（3 主证据 · 3 补充证据 · 3 线索 · 1 丢弃）</p>
+  <div id="main">
+    <svg id="wires" width="1848" height="880" style="position:absolute;left:0;top:0;pointer-events:none;"></svg>
+    <div id="queue"><div class="panel-title">入库队列（10 篇 · 随机次序）</div></div>
+    <div id="nodes"></div>
+    <div id="card">
+      <span class="ct">元信息卡（随流程生长）</span><span class="cid" id="cid"></span>
+      <div id="cgroups">
+        <div class="cgroup" id="cg-static">
+          <div class="gt">入库登记（静态字段）</div>
+          <div class="chips" id="chips-static"></div>
+        </div>
+        <div class="cgroup" id="cg-score">
+          <div class="gt">L1 分级打分（权威 / 相关 / 密度）</div>
+          <div class="chips" id="chips-score"></div>
+        </div>
+        <div class="cgroup" id="cg-verdict">
+          <div class="gt">分流结论（回写卡片）</div>
+          <div class="chips" id="chips-verdict"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="foot">
+    <div id="flabel"></div>
+    <div id="dots"></div>
+  </div>
+  <div id="fno"></div>
+</div>
+
+<script>
+// ---------- 节点坐标（中心点） ----------
+const NODES = {
+  collect: { x: 430,  y: 330, t: "L0 采集",     s: "多渠道原文" },
+  struct:  { x: 610,  y: 330, t: "结构化抽取",   s: "章节编号树" },
+  arch:    { x: 790,  y: 330, t: "独立归档",     s: "索引+元信息卡" },
+  grade:   { x: 985,  y: 330, t: "L1 分级",      s: "权威×相关×密度", w: 170 },
+  main:    { x: 1205, y: 130, t: "主证据层",     s: "蒸馏主要依据", branch: "main" },
+  supp:    { x: 1205, y: 250, t: "补充证据层",   s: "须标置信度", branch: "supp" },
+  clue:    { x: 1205, y: 470, t: "线索层",       s: "永不进证据链", branch: "clue" },
+  drop:    { x: 1205, y: 620, t: "丢弃",         s: "只留元信息卡", branch: "drop" },
+  align:   { x: 1400, y: 190, t: "L1.5 术语对齐", s: "统一各种叫法", w: 170 },
+  distill: { x: 1570, y: 190, t: "L2 蒸馏",      s: "逐条 JSON" },
+  graph:   { x: 1740, y: 190, t: "L3 图谱",      s: "关系索引" },
+  qa:      { x: 1570, y: 360, t: "质量保障",     s: "盲评把关" },
+};
+
+// ---------- 静态连线 ----------
+const EDGES = [
+  ["collect", "struct"], ["struct", "arch"], ["arch", "grade"],
+  ["grade", "main"], ["grade", "supp"], ["grade", "clue"], ["grade", "drop"],
+  ["main", "align"], ["supp", "align"],
+  ["align", "distill"], ["distill", "graph"], ["graph", "qa"],
+];
+const DASHED = [
+  ["clue", "align", "别名·未验证断言"],
+  ["clue", "graph", "提及登记"],
+];
+
+// ---------- 文档数据（随机次序） ----------
+const DOCS = [
+  { name: "CAE IOS 用户手册", kind: "pdf · 487 页", verdict: "main", vlabel: "主证据层", node: "main",
+    scores: "权5 · 相5 · 密5", terms: 6, entries: 12, rels: 9 },
+  { name: "博客测评文", kind: "网页 · 博客", verdict: "clue", vlabel: "线索层", node: "clue",
+    scores: "权2 · 相4 · 密2", terms: 2, entries: 0, rels: 3 },
+  { name: "培训讲义", kind: "ppt · 培训材料", verdict: "supp", vlabel: "补充证据层", node: "supp",
+    scores: "权3 · 相4 · 密3", terms: 3, entries: 4, rels: 3 },
+  { name: "民航新闻稿", kind: "网页 · 新闻", verdict: "drop", vlabel: "丢弃", node: "drop",
+    scores: "权2 · 相2 · 密1", terms: 0, entries: 0, rels: 0 },
+  { name: "A320 FCOM 节选", kind: "pdf · 210 页", verdict: "main", vlabel: "主证据层", node: "main",
+    scores: "权5 · 相5 · 密4", terms: 4, entries: 9, rels: 7 },
+  { name: "播客转录稿", kind: "转录 · 播客", verdict: "clue", vlabel: "线索层", node: "clue",
+    scores: "权1 · 相3 · 密2", terms: 2, entries: 0, rels: 3 },
+  { name: "论坛经验帖", kind: "网页 · 论坛", verdict: "supp", vlabel: "补充证据层", node: "supp",
+    scores: "权2 · 相4 · 密3", terms: 2, entries: 3, rels: 2 },
+  { name: "IOS SDK 接口文档", kind: "pdf · 156 页", verdict: "main", vlabel: "主证据层", node: "main",
+    scores: "权5 · 相4 · 密5", terms: 5, entries: 7, rels: 6 },
+  { name: "行业综述文章", kind: "网页 · 综述", verdict: "clue", vlabel: "线索层", node: "clue",
+    scores: "权2 · 相3 · 密2", terms: 1, entries: 0, rels: 2 },
+  { name: "旧版手册 v9", kind: "pdf · 402 页", verdict: "supp", vlabel: "补充证据层", node: "supp",
+    scores: "权3 · 相4 · 密3", terms: 4, entries: 5, rels: 4 },
+];
+const VCOLOR = { main: "#285e8a", supp: "#1e8e4e", clue: "#d97706", drop: "#9a9a94" };
+
+// 每篇的路径（节点序列）；线索走虚线到对齐和图谱；丢弃到丢弃节点止
+function pathOf(d) {
+  const head = ["collect", "struct", "arch", "grade", d.node];
+  if (d.verdict === "main" || d.verdict === "supp") return head.concat(["align", "distill", "graph"]);
+  if (d.verdict === "clue") return head.concat(["align", "graph"]);
+  return head;
+}
+
+// ---------- 时间线：每篇 2*seg+1 帧，seg=路径段数 ----------
+const INTRO = 5, OUTRO = 8, SETTLE = 1;
+const DOCLEN = DOCS.map(d => 2 * (pathOf(d).length - 1) + SETTLE);
+const TOTAL = INTRO + OUTRO + DOCLEN.reduce((a, b) => a + b, 0);
+
+const P = new URLSearchParams(location.search);
+const F = Math.max(0, Math.min(TOTAL - 1, parseInt(P.get("frame") || "0", 10)));
+
+// ---------- 解析当前帧 ----------
+let seg = { type: "intro" }, acc = INTRO;
+if (F >= acc) {
+  seg = null;
+  for (let i = 0; i < DOCS.length; i++) {
+    if (F < acc + DOCLEN[i]) { seg = { type: "doc", idx: i, t: F - acc }; break; }
+    acc += DOCLEN[i];
+  }
+  if (!seg) seg = { type: "outro" };
+}
+const doneUpto = seg.type === "doc" ? seg.idx : (seg.type === "outro" ? DOCS.length : 0);
+
+// ---------- 累计状态 ----------
+const layerCnt = { main: 0, supp: 0, clue: 0, drop: 0 };
+let termCnt = 0, entryCnt = 0, relCnt = 0;
+const state = { staticOn: false, scoreOn: false, verdictOn: false };
+
+function arrivals(d, uptoNodeIdx) {
+  // 到达节点 uptoNodeIdx（含）为止的所有副作用
+  const path = pathOf(d);
+  for (let k = 0; k <= uptoNodeIdx && k < path.length; k++) {
+    const nid = path[k];
+    if (nid === "arch") state.staticOn = true;
+    else if (nid === "grade") state.scoreOn = true;
+    else if (nid === d.node) { layerCnt[d.verdict]++; state.verdictOn = true; }
+    else if (nid === "align") termCnt += d.terms;
+    else if (nid === "distill") entryCnt += d.entries;
+    else if (nid === "graph") relCnt += d.rels;
+  }
+}
+for (let i = 0; i < doneUpto; i++) {
+  state.staticOn = state.scoreOn = state.verdictOn = true; // 前面篇的卡片状态不留恋，仅计数
+  arrivals(DOCS[i], 99);
+}
+
+// 当前篇的到达进度（无 token，奇数帧直接视为到达下一节点，路径只画完整段）
+let curNodeIdx = -1;
+if (seg.type === "doc") {
+  const d = DOCS[seg.idx], path = pathOf(d), S = path.length - 1;
+  state.staticOn = state.scoreOn = state.verdictOn = false;
+  curNodeIdx = Math.min(Math.ceil(seg.t / 2), S);
+  arrivals(d, curNodeIdx);
+}
+
+// ---------- 渲染节点 ----------
+const nodesEl = document.getElementById("nodes");
+Object.entries(NODES).forEach(([id, n]) => {
+  const el = document.createElement("div");
+  el.className = "node" + (n.branch ? " branch " + n.branch : "");
+  el.id = "node-" + id;
+  el.style.left = n.x + "px"; el.style.top = n.y + "px";
+  if (n.w) el.style.width = n.w + "px";
+  el.innerHTML = `<span class="nt">${n.t}</span><span class="ns">${n.s}</span><span class="badge" id="badge-${id}"></span>`;
+  nodesEl.appendChild(el);
+});
+// 计数徽标
+const badges = {
+  main: layerCnt.main + " 篇", supp: layerCnt.supp + " 篇", clue: layerCnt.clue + " 篇", drop: layerCnt.drop + " 篇",
+  align: termCnt + " 词", distill: entryCnt + " 条", graph: relCnt + " 关系",
+};
+Object.entries(badges).forEach(([id, txt]) => {
+  const b = document.getElementById("badge-" + id);
+  const val = parseInt(txt, 10);
+  if (val > 0) { b.textContent = txt; b.classList.add("show"); }
+});
+
+// ---------- 渲染连线 ----------
+function hpath(a, b) {
+  const A = NODES[a], B = NODES[b];
+  const mx = (A.x + B.x) / 2;
+  return `M ${A.x} ${A.y} L ${mx} ${A.y} L ${mx} ${B.y} L ${B.x} ${B.y}`;
+}
+let svg = "";
+EDGES.forEach(([a, b]) => { svg += `<path d="${hpath(a, b)}" fill="none" stroke="#d8d6ce" stroke-width="2.2" stroke-linejoin="round"/>`; });
+DASHED.forEach(([a, b]) => { svg += `<path d="${hpath(a, b)}" fill="none" stroke="#e0cfc0" stroke-width="2" stroke-dasharray="7 6" stroke-linejoin="round"/>`; });
+
+// 当前篇已走过的路径高亮（只画完整节点段）
+if (seg.type === "doc") {
+  const d = DOCS[seg.idx], path = pathOf(d), color = VCOLOR[d.verdict];
+  let pts = path.slice(0, curNodeIdx + 1).map(id => [NODES[id].x, NODES[id].y]);
+  for (let k = 0; k < pts.length - 1; k++) {
+    const [x1, y1] = pts[k], [x2, y2] = pts[k + 1];
+    const mx = (x1 + x2) / 2;
+    svg += `<path d="M ${x1} ${y1} L ${mx} ${y1} L ${mx} ${y2} L ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="3.2" stroke-linejoin="round" ${d.verdict === "clue" && k >= 4 ? 'stroke-dasharray="7 6"' : ""}/>`;
+  }
+  // 节点高亮
+  const glowId = path[Math.min(curNodeIdx, path.length - 1)];
+  const glowEl = document.getElementById("node-" + glowId);
+  if (glowEl) glowEl.classList.add("glow");
+}
+wires.innerHTML = svg;
+
+// ---------- 队列与进度点 ----------
+const queueEl = document.getElementById("queue");
+DOCS.forEach((d, i) => {
+  const el = document.createElement("div");
+  el.className = "doc"; el.id = "doc" + i;
+  el.innerHTML = `<span class="dnum">${i + 1}</span><span class="dmeta"><span class="dname">${d.name}</span><br><span class="dkind">${d.kind}</span></span><span class="dverdict ${d.verdict}">${d.vlabel}</span>`;
+  queueEl.appendChild(el);
+  const dot = document.createElement("span");
+  dot.className = "dot"; dot.id = "dot" + i;
+  document.getElementById("dots").appendChild(dot);
+});
+DOCS.forEach((d, i) => {
+  const el = document.getElementById("doc" + i), dot = document.getElementById("dot" + i);
+  if (i < doneUpto) {
+    el.classList.add("done"); el.querySelector(".dverdict").style.visibility = "visible";
+    dot.classList.add("done", d.verdict);
+  } else if (seg.type === "doc" && i === seg.idx) {
+    el.classList.add("active"); dot.classList.add("cur");
+    if (state.verdictOn) el.querySelector(".dverdict").style.visibility = "visible";
+  }
+});
+
+// ---------- 元信息卡条 ----------
+const cardVisible = seg.type === "doc";
+document.getElementById("card").style.opacity = cardVisible ? "1" : ".35";
+if (seg.type === "doc") {
+  const d = DOCS[seg.idx];
+  document.getElementById("cid").textContent = "doc_id: doc_" + String(seg.idx + 1).padStart(2, "0");
+  document.getElementById("chips-static").innerHTML =
+    `<span class="chip2">${d.kind}</span><span class="chip2">已建目录索引</span><span class="chip2">独立文件夹归档</span>`;
+  document.getElementById("chips-score").innerHTML =
+    `<span class="chip2 score">${d.scores}</span>`;
+  document.getElementById("chips-verdict").innerHTML =
+    `<span class="chip2 verdict-${d.verdict}">${d.vlabel}</span>`;
+  if (state.staticOn) document.getElementById("cg-static").classList.add("on");
+  if (state.scoreOn) document.getElementById("cg-score").classList.add("on");
+  if (state.verdictOn) document.getElementById("cg-verdict").classList.add("on");
+}
+
+// ---------- 底部标签 ----------
+const PHASE = {
+  collect: "进入 L0 采集", struct: "结构化抽取，保留章节编号树", arch: "独立归档，登记元信息卡静态字段",
+  grade: "L1 分级：三维打分（不读全文）", main: "分流 → 主证据层，进证据链", supp: "分流 → 补充证据层，须标置信度",
+  clue: "分流 → 线索层，只以线索身份受限利用", drop: "分流 → 丢弃，只保留元信息卡",
+  align: "L1.5 术语对齐：登记规范名与别名", distill: "L2 蒸馏：产出蒸馏条目", graph: "L3 图谱：登记关系（支撑 / 提及）",
+};
+const flabel = document.getElementById("flabel");
+if (seg.type === "intro") {
+  flabel.textContent = "全链路总览：10 篇文档将依次走完采集 → 分级 → 分流 → 对齐 → 蒸馏 → 图谱";
+} else if (seg.type === "outro") {
+  flabel.textContent = `10 篇处理完毕：主证据 ${layerCnt.main}、补充 ${layerCnt.supp}、线索 ${layerCnt.clue}、丢弃 ${layerCnt.drop}；术语 ${termCnt} 词、蒸馏条目 ${entryCnt} 条、图谱关系 ${relCnt} 条`;
+} else {
+  const d = DOCS[seg.idx], path = pathOf(d);
+  const nid = path[Math.min(curNodeIdx, path.length - 1)];
+  flabel.innerHTML = `第 ${seg.idx + 1} 篇 / 共 10 篇 · ${d.name}：<span class="hl">${PHASE[nid]}</span>`;
+}
+
+document.getElementById("fno").textContent = "frame " + F + " / " + (TOTAL - 1);
+</script>
+</body>
+</html>

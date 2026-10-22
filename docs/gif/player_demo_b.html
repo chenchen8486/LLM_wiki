@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>播放器 demo B：宫格总览锁步</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; background: #f7f7f5; color: #22221f; padding: 24px 32px; }
+  h1 { font-size: 24px; }
+  .sub { font-size: 14px; color: #55554f; margin-top: 6px; }
+  #grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .cell { background: #fff; border: 1.5px solid #e2e0d8; border-radius: 10px; overflow: hidden; }
+  .cell .ct { font-size: 13.5px; font-weight: 700; padding: 6px 12px; border-bottom: 1px solid #f1f0eb; }
+  .cell img { display: block; width: 100%; }
+  #ctrl { display: flex; align-items: center; gap: 14px; margin-top: 14px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 12px; padding: 10px 16px; }
+  .btn { font-size: 15px; font-weight: 700; border: 1.5px solid #d8d6ce; background: #fff; border-radius: 8px; padding: 5px 14px; cursor: pointer; }
+  .btn:hover { border-color: #285e8a; color: #285e8a; }
+  #bar { flex: 1; -webkit-appearance: none; appearance: none; height: 6px; background: #e2e0d8; border-radius: 999px; cursor: pointer; }
+  #bar::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #c0392b; cursor: pointer; }
+  #fno { font-family: Consolas, monospace; font-size: 14px; color: #55554f; min-width: 96px; text-align: right; }
+  #flabel { margin-top: 10px; font-size: 16px; font-weight: 700; }
+</style>
+</head>
+<body>
+<h1>全链路动画播放器（demo B：六分镜锁步宫格）</h1>
+<p class="sub">六格共享同一条 151 帧时间轴，同步播放。格内文字小看不清是宫格模式的固有代价，细读请用 demo A。</p>
+<div id="grid"></div>
+<div id="ctrl">
+  <button class="btn" id="play">▶ 播放</button>
+  <button class="btn" id="prev">⏮ -1</button>
+  <button class="btn" id="next">+1 ⏭</button>
+  <input type="range" id="bar" min="0" max="150" value="0">
+  <span id="fno">f000 / 150</span>
+</div>
+<div id="flabel"></div>
+
+<script>
+const VIEWS = [
+  { tab: "① 总流程图流转", dir: "2_全链路流程图流转" },
+  { tab: "② 元信息卡生命周期", dir: "3_元信息卡生命周期" },
+  { tab: "③ 线索层三份清单", dir: "1_线索层三份清单增量累积" },
+  { tab: "④ 术语登记表对齐", dir: "5_术语登记表对齐" },
+  { tab: "⑤ 蒸馏与断言验证", dir: "6_蒸馏与断言验证" },
+  { tab: "⑥ 终态资产总览", dir: "7_终态资产总览" },
+];
+const N = 151;
+const DOCS = [ ["CAE IOS 用户手册",15],["博客测评文",13],["培训讲义",15],["民航新闻稿",9],["A320 FCOM 节选",15],["播客转录稿",13],["论坛经验帖",15],["IOS SDK 接口文档",15],["行业综述文章",13],["旧版手册 v9",15] ];
+
+const grid = document.getElementById("grid");
+VIEWS.forEach((v, i) => {
+  grid.innerHTML += `<div class="cell"><div class="ct">${v.tab}</div><img id="img${i}" alt=""></div>`;
+});
+
+let f = 0, playing = false, timer = null;
+const bar = document.getElementById("bar"), fno = document.getElementById("fno");
+function pad(n) { return String(n).padStart(3, "0"); }
+function docAt(f) {
+  if (f < 5) return "建仓初始化";
+  let acc = 5;
+  for (let i = 0; i < DOCS.length; i++) {
+    if (f < acc + DOCS[i][1]) return `第 ${i + 1} 篇 / 共 10 篇 · ${DOCS[i][0]}`;
+    acc += DOCS[i][1];
+  }
+  return "10 篇处理完毕，终态盘点";
+}
+function render() {
+  VIEWS.forEach((v, i) => { document.getElementById("img" + i).src = encodeURI(`${v.dir}/frames/f${pad(f)}.png`); });
+  bar.value = f;
+  fno.textContent = `f${pad(f)} / 150`;
+  document.getElementById("flabel").textContent = docAt(f);
+}
+function step(d) { f = (f + d + N) % N; render(); }
+function play() {
+  playing = !playing;
+  document.getElementById("play").textContent = playing ? "⏸ 暂停" : "▶ 播放";
+  if (playing) timer = setInterval(() => { if (f >= N - 1) { play(); return; } step(1); }, 160);
+  else clearInterval(timer);
+}
+document.getElementById("play").onclick = play;
+document.getElementById("prev").onclick = () => step(-1);
+document.getElementById("next").onclick = () => step(1);
+bar.oninput = () => { f = +bar.value; render(); };
+document.addEventListener("keydown", e => {
+  if (e.key === " ") { e.preventDefault(); play(); }
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+render();
+</script>
+</body>
+</html>

@@ -3,3 +3,7 @@
 Thumbs.db
 desktop.ini
 temp/
+
+# GIF 动图产物（代码可重新渲染，不入库）
+docs/gif/*.gif
+docs/gif/**/*.png
