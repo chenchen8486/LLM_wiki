@@ -11,27 +11,29 @@
   .sub { font-size: 15.5px; color: #55554f; margin-top: 6px; }
   #main { position: relative; height: 880px; margin-top: 12px; }
 
-  /* 左：入库队列 */
-  #queue { position: absolute; left: 0; top: 0; width: 290px; }
-  .panel-title { font-size: 16px; font-weight: 700; color: #55554f; margin-bottom: 10px; letter-spacing: .06em; }
-  .doc { display: flex; align-items: center; gap: 9px; height: 62px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 10px; padding: 0 10px; margin-bottom: 10px; opacity: .45; }
-  .doc.active { opacity: 1; border-color: #285e8a; box-shadow: 0 0 0 3px #e8f0f6; }
-  .doc.done { opacity: 1; }
-  .dnum { flex: none; width: 26px; height: 26px; border-radius: 50%; background: #f1f0eb; color: #55554f; font-size: 13.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-  .doc.active .dnum { background: #285e8a; color: #fff; }
-  .dmeta { flex: 1; min-width: 0; }
-  .dname { font-size: 15.5px; font-weight: 700; }
-  .dkind { font-size: 12px; color: #9a9a94; margin-top: 2px; }
-  .dverdict { flex: none; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; visibility: hidden; }
-  .dverdict.main { background: #e8f0f6; color: #285e8a; }
-  .dverdict.supp { background: #e9f6ef; color: #1e8e4e; }
-  .dverdict.clue { background: #fdf3e3; color: #d97706; }
-  .dverdict.drop { background: #f1f0eb; color: #9a9a94; }
+  /* 右下：入库队列（紧凑小列表，双列） */
+  #queue { position: absolute; left: 1180px; top: 706px; width: 668px; }
+  .panel-title { font-size: 15px; font-weight: 700; color: #55554f; margin-bottom: 6px; letter-spacing: .06em; }
+  #qlist { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .qrow { display: flex; align-items: center; gap: 7px; height: 27px; font-size: 14px; color: #9a9a94; padding: 0 6px; border-radius: 6px; }
+  .qrow.cur { color: #22221f; font-weight: 700; background: #fff; box-shadow: inset 0 0 0 1.5px #c0392b; }
+  .qrow .ddot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #d8d6ce; background: #fff; flex: none; }
+  .qrow.done { color: #55554f; }
+  .qrow.done .ddot.main { background: #285e8a; border-color: #285e8a; }
+  .qrow.done .ddot.supp { background: #1e8e4e; border-color: #1e8e4e; }
+  .qrow.done .ddot.clue { background: #d97706; border-color: #d97706; }
+  .qrow.done .ddot.drop { background: #9a9a94; border-color: #9a9a94; }
+  .qrow .qname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qverdict { flex: none; font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 1px 8px; visibility: hidden; }
+  .qverdict.main { background: #e8f0f6; color: #285e8a; }
+  .qverdict.supp { background: #e9f6ef; color: #1e8e4e; }
+  .qverdict.clue { background: #fdf3e3; color: #d97706; }
+  .qverdict.drop { background: #f1f0eb; color: #9a9a94; }
 
   /* 流程图节点 */
-  .node { position: absolute; width: 150px; height: 66px; background: #fff; border: 2px solid #d8d6ce; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translate(-50%, -50%); }
-  .node .nt { font-size: 16.5px; font-weight: 700; }
-  .node .ns { font-size: 11.5px; color: #9a9a94; margin-top: 3px; }
+  .node { position: absolute; width: 162px; height: 70px; background: #fff; border: 2px solid #d8d6ce; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translate(-50%, -50%); }
+  .node .nt { font-size: 17.5px; font-weight: 700; }
+  .node .ns { font-size: 12.5px; color: #9a9a94; margin-top: 3px; }
   .node.glow { border-color: #c0392b; box-shadow: 0 0 0 5px #fdeaea; }
   .node.branch.main { border-color: #285e8a; }
   .node.branch.supp { border-color: #1e8e4e; }
@@ -45,7 +47,7 @@
   .node .badge.show { display: block; }
 
   /* 底部元信息卡条 */
-  #card { position: absolute; left: 320px; top: 700px; width: 1210px; height: 160px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 12px; padding: 12px 18px; }
+  #card { position: absolute; left: 0; top: 700px; width: 1150px; height: 160px; background: #fff; border: 1.5px solid #e2e0d8; border-radius: 12px; padding: 12px 18px; }
   #card .ct { font-size: 15px; font-weight: 700; color: #55554f; letter-spacing: .06em; }
   #card .cid { font-family: Consolas, monospace; font-size: 13px; color: #9a9a94; margin-left: 10px; }
   #cgroups { display: flex; gap: 26px; margin-top: 14px; }
@@ -80,7 +82,7 @@
   <p class="sub">场景：10 篇文档随机次序入库，逐篇走完 L0 采集 → 结构化 → 归档 → L1 分级 → 分流 → L1.5 术语对齐 → L2 蒸馏 → L3 图谱（3 主证据 · 3 补充证据 · 3 线索 · 1 丢弃）</p>
   <div id="main">
     <svg id="wires" width="1848" height="880" style="position:absolute;left:0;top:0;pointer-events:none;"></svg>
-    <div id="queue"><div class="panel-title">入库队列（10 篇 · 随机次序）</div></div>
+    <div id="queue"><div class="panel-title">入库队列（10 篇 · 随机次序）</div><div id="qlist"></div></div>
     <div id="nodes"></div>
     <div id="card">
       <span class="ct">元信息卡（随流程生长）</span><span class="cid" id="cid"></span>
@@ -110,18 +112,18 @@
 <script>
 // ---------- 节点坐标（中心点） ----------
 const NODES = {
-  collect: { x: 430,  y: 330, t: "L0 采集",     s: "多渠道原文" },
-  struct:  { x: 610,  y: 330, t: "结构化抽取",   s: "章节编号树" },
-  arch:    { x: 790,  y: 330, t: "独立归档",     s: "索引+元信息卡" },
-  grade:   { x: 985,  y: 330, t: "L1 分级",      s: "权威×相关×密度", w: 170 },
-  main:    { x: 1205, y: 130, t: "主证据层",     s: "蒸馏主要依据", branch: "main" },
-  supp:    { x: 1205, y: 250, t: "补充证据层",   s: "须标置信度", branch: "supp" },
-  clue:    { x: 1205, y: 470, t: "线索层",       s: "永不进证据链", branch: "clue" },
-  drop:    { x: 1205, y: 620, t: "丢弃",         s: "只留元信息卡", branch: "drop" },
-  align:   { x: 1400, y: 190, t: "L1.5 术语对齐", s: "统一各种叫法", w: 170 },
-  distill: { x: 1570, y: 190, t: "L2 蒸馏",      s: "逐条 JSON" },
-  graph:   { x: 1740, y: 190, t: "L3 图谱",      s: "关系索引" },
-  qa:      { x: 1570, y: 360, t: "质量保障",     s: "盲评把关" },
+  collect: { x: 220,  y: 330, t: "L0 采集",     s: "多渠道原文" },
+  struct:  { x: 430,  y: 330, t: "结构化抽取",   s: "章节编号树" },
+  arch:    { x: 640,  y: 330, t: "独立归档",     s: "索引+元信息卡" },
+  grade:   { x: 860,  y: 330, t: "L1 分级",      s: "权威×相关×密度", w: 178 },
+  main:    { x: 1120, y: 130, t: "主证据层",     s: "蒸馏主要依据", branch: "main" },
+  supp:    { x: 1120, y: 250, t: "补充证据层",   s: "须标置信度", branch: "supp" },
+  clue:    { x: 1120, y: 470, t: "线索层",       s: "永不进证据链", branch: "clue" },
+  drop:    { x: 1120, y: 600, t: "丢弃",         s: "只留元信息卡", branch: "drop" },
+  align:   { x: 1330, y: 190, t: "L1.5 术语对齐", s: "统一各种叫法", w: 178 },
+  distill: { x: 1550, y: 190, t: "L2 蒸馏",      s: "逐条 JSON" },
+  graph:   { x: 1760, y: 190, t: "L3 图谱",      s: "关系索引" },
+  qa:      { x: 1550, y: 360, t: "质量保障",     s: "盲评把关" },
 };
 
 // ---------- 静态连线 ----------
@@ -270,11 +272,11 @@ if (seg.type === "doc") {
 wires.innerHTML = svg;
 
 // ---------- 队列与进度点 ----------
-const queueEl = document.getElementById("queue");
+const queueEl = document.getElementById("qlist");
 DOCS.forEach((d, i) => {
   const el = document.createElement("div");
-  el.className = "doc"; el.id = "doc" + i;
-  el.innerHTML = `<span class="dnum">${i + 1}</span><span class="dmeta"><span class="dname">${d.name}</span><br><span class="dkind">${d.kind}</span></span><span class="dverdict ${d.verdict}">${d.vlabel}</span>`;
+  el.className = "qrow"; el.id = "doc" + i;
+  el.innerHTML = `<span class="ddot ${d.verdict}"></span><span class="qname">${i + 1}. ${d.name}</span><span class="qverdict ${d.verdict}">${d.vlabel}</span>`;
   queueEl.appendChild(el);
   const dot = document.createElement("span");
   dot.className = "dot"; dot.id = "dot" + i;
@@ -283,11 +285,11 @@ DOCS.forEach((d, i) => {
 DOCS.forEach((d, i) => {
   const el = document.getElementById("doc" + i), dot = document.getElementById("dot" + i);
   if (i < doneUpto) {
-    el.classList.add("done"); el.querySelector(".dverdict").style.visibility = "visible";
+    el.classList.add("done"); el.querySelector(".qverdict").style.visibility = "visible";
     dot.classList.add("done", d.verdict);
   } else if (seg.type === "doc" && i === seg.idx) {
-    el.classList.add("active"); dot.classList.add("cur");
-    if (state.verdictOn) el.querySelector(".dverdict").style.visibility = "visible";
+    el.classList.add("cur"); dot.classList.add("cur");
+    if (state.verdictOn) el.querySelector(".qverdict").style.visibility = "visible";
   }
 });
 
