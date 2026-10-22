@@ -357,8 +357,9 @@ try{
       <a href="#ch10" class="toc-item"><span class="toc-num">10</span>质量保障</a>
       <a href="#ch11" class="toc-item"><span class="toc-num">11</span>建成后的使用方式</a>
       <a href="#ch12" class="toc-item"><span class="toc-num">12</span>全链路动画展示</a>
+      <a href="#ch13" class="toc-item"><span class="toc-num">13</span>演示</a>
     </nav>
-    <div class="sidebar-foot">全 12 章<br>自包含离线版</div>
+    <div class="sidebar-foot">全 13 章<br>自包含离线版</div>
   </aside>
 
   <main id="main">
@@ -1391,6 +1392,18 @@ jq -r '.source[].section' entries.jsonl | sort -u</code></pre>
 })();
 </script>
       </section>
+      <section class="chapter" id="ch13">
+        <header class="chapter-head">
+          <div class="chapter-meta">
+            <span class="chapter-num">13</span>
+            <span class="chapter-kicker">第十三章</span>
+          </div>
+          <h2>演示</h2>
+          <p class="chapter-lead">全链路播放器：六个分镜共享同一条 151 帧时间轴，可播放、暂停、逐帧、调速（0.5x-4x），播放条上的圆形刻度标在每篇文档进入的那一帧，点击直接跳转。本章节引用外部帧图，请保持 docs/gif/ 目录与本文档的相对位置不变。</p>
+        </header>
+        <iframe src="gif/全链路播放器.html" style="width:100%;height:1240px;border:1.5px solid var(--line,#e2e0d8);border-radius:12px;background:#f7f7f5" loading="lazy" title="全链路播放器"></iframe>
+      </section>
+
 
       <footer class="doc-foot">
         多媒体信息抽取：架构设想 · 阅读版 · 2026-10-21
