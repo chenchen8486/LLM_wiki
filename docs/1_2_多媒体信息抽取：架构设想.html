@@ -589,11 +589,19 @@ flowchart LR
     J -.产出.-> P4["③ 蒸馏条目 entries.jsonl<br/>⑤ 盲区清单　⑥ 冲突记录"]
     K -.产出.-> P5["⑧ 知识图谱<br/>三类节点六种边"]
 
+    classDef tierMain fill:#dc2626,fill-opacity:0.36,stroke:#dc2626,stroke-opacity:0.9,stroke-width:1.5px;
+    classDef tierSupplement fill:#dc2626,fill-opacity:0.24,stroke:#dc2626,stroke-opacity:0.7;
+    classDef tierClue fill:#dc2626,fill-opacity:0.14,stroke:#dc2626,stroke-opacity:0.5;
+    classDef tierDiscard fill:#dc2626,fill-opacity:0.07,stroke:#dc2626,stroke-opacity:0.35;
+    class E tierMain;
+    class F tierSupplement;
+    class G tierClue;
+    class H tierDiscard;
     classDef asset fill:#fff4d6,stroke:#d4a017,color:#5c4400;
     class P1,P2,P3,P4,P5 asset;
     linkStyle 14,15,16,17,18,19 stroke:#d4a017,stroke-width:2px,color:#8a6d00
 </pre>
-<figcaption>图 2：全链路架构。黄色标签为各阶段产出的资产，编号按表 1 的行序一一对应</figcaption>
+<figcaption>图 2：全链路架构。红色透明度按主证据、补充证据、线索、丢弃递减。黄色标签为各阶段资产，编号与表 1 对应</figcaption>
 </figure>
 
         <p>注意图里的线。实线是证据流，结论可以据此成立。虚线分两种：灰色虚线是线索流，只指路，不作证据；黄色虚线连到黄色标签，标出各阶段产出的资产。3.2 展开讲证据流和线索流这两条通道。</p>
