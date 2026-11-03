@@ -162,7 +162,7 @@ figure{margin:22px 0}
 :root[data-theme="dark"] .triage .dim-den{--c1:#8b79e6;--c2:#b6a6ff;--glow:rgba(139,121,230,.16)}
 .triage .dim-head{padding:18px 18px 12px;background:radial-gradient(120% 90% at 50% -20%,var(--glow),transparent)}
 .triage .dim-name{font-size:17px;font-weight:700;letter-spacing:.04em}
-.triage .dim-src{display:inline-block;margin-top:6px;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 10px;letter-spacing:.03em}
+.triage .dim-src{display:block;margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--muted);letter-spacing:0}
 .triage .ladder{list-style:none;margin:0;padding:6px 18px 16px;position:relative}
 .triage .ladder::before{content:"";position:absolute;left:31px;top:14px;bottom:22px;width:2px;background:linear-gradient(180deg,var(--c1),var(--c2) 55%,var(--line));border-radius:2px;opacity:.85}
 .triage .rungs{position:relative;display:flex;align-items:center;gap:12px;padding:7px 0;margin:0}
@@ -740,7 +740,7 @@ page_or_line_count: 487               <span class="cmt"># 篇幅规模（页数�
   <div class="dim dim-auth">
     <div class="dim-head">
       <div class="dim-name">权威性</div>
-      <span class="dim-src">依据：元信息卡 doc_type / source_org</span>
+      <span class="dim-src">依据：看元信息卡的 doc_type 和 source_org，不读正文就能定档。</span>
     </div>
     <ul class="ladder">
       <li class="rungs"><span class="dot"></span><span class="rung-label">厂商官方手册/SDK</span><span class="bar"><i></i></span></li>
@@ -754,7 +754,7 @@ page_or_line_count: 487               <span class="cmt"># 篇幅规模（页数�
   <div class="dim dim-rel">
     <div class="dim-head">
       <div class="dim-name">相关性</div>
-      <span class="dim-src">依据：目录索引，存疑抽 3~5 段正文</span>
+      <span class="dim-src">依据：看目录索引判断覆盖范围，无法确定再抽 3 到 5 段正文。</span>
     </div>
     <ul class="ladder">
       <li class="rungs"><span class="dot"></span><span class="rung-label">全文围绕目标软件</span><span class="bar"><i></i></span></li>
@@ -767,7 +767,7 @@ page_or_line_count: 487               <span class="cmt"># 篇幅规模（页数�
   <div class="dim dim-den">
     <div class="dim-head">
       <div class="dim-name">信息密度</div>
-      <span class="dim-src">依据：抽样正文写法</span>
+      <span class="dim-src">依据：看抽样正文的写法，有没有逐参数操作表格是最强信号。</span>
     </div>
     <ul class="ladder">
       <li class="rungs"><span class="dot"></span><span class="rung-label">逐参数逐步骤操作级</span><span class="bar"><i></i></span></li>
@@ -778,32 +778,8 @@ page_or_line_count: 487               <span class="cmt"># 篇幅规模（页数�
     <div class="dim-foot"><span class="hi">高 · 操作级最强信号</span><span class="scale"></span><span class="lo">低</span></div>
   </div>
 </div>
-<figcaption>图 4：分级三维度全貌</figcaption>
+<figcaption>图 4：分级三维度与判断依据</figcaption>
 </figure>
-
-                <div class="table-wrap">
-          <table>
-            <caption>表 5：分级三维度与判断依据</caption>
-            <thead><tr><th>维度</th><th>档位（从高到低）</th><th>判断依据</th></tr></thead>
-            <tbody>
-              <tr>
-                <td>权威性</td>
-                <td>厂商官方手册/SDK<br>标准法规<br>厂商培训材料<br>第三方深度评测<br>二手博客/播客</td>
-                <td>看元信息卡的 doc_type 和 source_org，不读正文就能定档。</td>
-              </tr>
-              <tr>
-                <td>相关性</td>
-                <td>全文围绕目标软件<br>有专章涉及<br>顺带提及<br>仅用词沾边</td>
-                <td>看目录索引判断覆盖范围，无法确定再抽 3 到 5 段正文。</td>
-              </tr>
-              <tr>
-                <td>信息密度</td>
-                <td>逐参数逐步骤操作级<br>功能级描述<br>概念级描述<br>营销话术/感想</td>
-                <td>看抽样正文的写法，有没有逐参数操作表格是最强信号。</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
         <p>三个维度各取一档，组合起来就是这篇文档的画像。定档结果逐字段回写到元信息卡的 triage 段，格式见 5.5。</p>
 
         <h3 id="s5-2"><span class="h3-num">5.2</span> 四层分流决策树<a class="anchor" href="#s5-2">§</a></h3>
@@ -913,7 +889,7 @@ triage:
 
         <div class="table-wrap">
           <table>
-            <caption>表 6：线索层三份清单的内容与去向</caption>
+            <caption>表 5：线索层三份清单的内容与去向</caption>
             <thead><tr><th>产物</th><th>内容</th><th>举例</th><th>给谁用</th></tr></thead>
             <tbody>
               <tr><td>概念提及清单</td><td>术语/功能名 + 出现频次 + 一句上下文</td><td>“教案”出现 14 次，上下文都在说 Lesson Plan</td><td>提供给术语对齐层当别名来源（第 07 章）。频次可画出领域热图，看哪些概念被讨论最多</td></tr>
@@ -1061,7 +1037,7 @@ flowchart LR
         <p>一次实际走查，某培训材料入库，抽出三个词：</p>
         <div class="table-wrap">
           <table>
-            <caption>表 7：三个词的对齐走查</caption>
+            <caption>表 6：三个词的对齐走查</caption>
             <thead><tr><th>抽出的词</th><th>匹配结果</th><th>处理</th></tr></thead>
             <tbody>
               <tr><td>教案</td><td>aliases 精确命中</td><td>映射到 term_lesson_plan，术语登记表不变</td></tr>
@@ -1092,7 +1068,7 @@ flowchart LR
 
         <div class="table-wrap">
           <table>
-            <caption>表 8：五类骨架的条目举例</caption>
+            <caption>表 7：五类骨架的条目举例</caption>
             <thead><tr><th>从手册第七章拆出的条目</th><th>归属类型</th></tr></thead>
             <tbody>
               <tr><td>“OAT 外界温度修改：点字段弹键盘、输入 -70~+50°C……”</td><td>功能点</td></tr>
@@ -1183,7 +1159,7 @@ flowchart TD
 
         <div class="table-wrap">
           <table>
-            <caption>表 9：三类节点</caption>
+            <caption>表 8：三类节点</caption>
             <thead><tr><th>节点</th><th>描述</th><th>例子</th></tr></thead>
             <tbody>
               <tr><td>文档/章节节点</td><td>主证据层、补充证据层文档的章节（章节级，不是整篇）</td><td>《CAE IOS 手册》§7.4.2</td></tr>
@@ -1197,7 +1173,7 @@ flowchart TD
 
         <div class="table-wrap">
           <table>
-            <caption>表 10：六种边</caption>
+            <caption>表 9：六种边</caption>
             <thead><tr><th>边</th><th>描述</th><th>例子</th></tr></thead>
             <tbody>
               <tr><td>SUPPORTS<span class="cell-sub">出处边，最关键</span></td><td>这条条目出自这个章节</td><td>§7.4.2 → “OAT 修改”条目。有了它，任何规格都能回溯原文摘句，逐句覆盖与出处纪律的落点</td></tr>
