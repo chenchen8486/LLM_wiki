@@ -536,10 +536,10 @@ try{
           <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["原文 “slew”<br/>面板按钮按速率推移"] --> B["译文写成<br/>“拖动”"]
-    B --> C["推导成<br/>地图拖拽重定位"]
-    C --> D["虚构功能<br/>进入产物"]
-    D --> E["评审阶段<br/>才发现"]
+    A["原文 “slew”：<br/>面板按钮按速率推移"] --> B["译文写成：<br/>“拖动”"]
+    B --> C["推导成：<br/>地图拖拽重定位"]
+    C --> D["虚构功能：<br/>进入产物"]
+    D --> E["评审阶段：<br/>才发现"]
 </pre>
 <figcaption>图 1：误译沿管道放大成虚构功能</figcaption>
 </figure>
@@ -570,27 +570,27 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["L0 多渠道采集<br/>pdf/ppt/doc/md/txt"] --> B["结构化抽取<br/>保留章节编号树"]
+    A["L0 多渠道采集：<br/>pdf/ppt/doc/md/txt"] --> B["结构化抽取：<br/>保留章节编号树"]
     B --> C["独立归档"]
-    C --> D{"L1 分级<br/>权威性×相关性×密度"}
-    D -->|高质| E["主证据层<br/>蒸馏主要依据"]
-    D -->|互补| F["补充证据层<br/>须标置信度"]
-    D -->|粗糙| G["线索层<br/>永不进证据链"]
-    D -->|沾边| H["丢弃<br/>只留元信息卡"]
-    E --> I["L1.5 术语对齐<br/>统一各种叫法"]
+    C --> D{"L1 分级：<br/>权威性×相关性×密度"}
+    D -->|高质| E["主证据层：<br/>蒸馏主要依据"]
+    D -->|互补| F["补充证据层：<br/>须标置信度"]
+    D -->|粗糙| G["线索层：<br/>永不进证据链"]
+    D -->|沾边| H["丢弃：<br/>只留元信息卡"]
+    E --> I["L1.5 术语对齐：<br/>统一各种叫法"]
     F --> I
     G -.->|别名与未验证断言| I
-    I --> J["L2 蒸馏<br/>逐条JSON+状态"]
-    J --> K["L3 规格图谱<br/>知识图谱索引"]
+    I --> J["L2 蒸馏：<br/>逐条JSON+状态"]
+    J --> K["L3 规格图谱：<br/>知识图谱索引"]
     G -.->|提及登记| K
-    K --> L["质量保障<br/>盲评≥85%"]
+    K --> L["质量保障：<br/>盲评≥85%"]
 
     C -.产出.-> P1["① 文档文件夹（含目录索引）<br/>② 元信息卡"]
     D -.分级结论回写.-> P1
-    G -.跨文档汇总.-> P2["⑦ 线索层三份清单<br/>概念提及清单 / 断言日志<br/>检索词表"]
-    I -.产出.-> P3["④ 术语登记表<br/>canonical_id"]
+    G -.跨文档汇总.-> P2["⑦ 线索层三份清单：<br/>概念提及清单 / 断言日志<br/>检索词表"]
+    I -.产出.-> P3["④ 术语登记表：<br/>canonical_id"]
     J -.产出.-> P4["③ 蒸馏条目 entries.jsonl<br/>⑤ 盲区清单　⑥ 冲突记录"]
-    K -.产出.-> P5["⑧ 知识图谱<br/>三类节点六种边"]
+    K -.产出.-> P5["⑧ 知识图谱：<br/>三类节点六种边"]
 
     classDef tierMain fill:#dc2626,fill-opacity:0.36,stroke:#dc2626,stroke-opacity:0.9,stroke-width:1.5px;
     classDef tierSupplement fill:#dc2626,fill-opacity:0.24,stroke:#dc2626,stroke-opacity:0.7;
@@ -613,14 +613,23 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["客户需求<br/>修改 OAT 可输入范围"] --> B["LLM 解析需求<br/>识别功能、参数与约束"]
-    B --> C["检索词表<br/>别名、缩写、中英文扩词"]
-    C --> D["术语登记表<br/>归一到规范术语"]
-    D --> E["蒸馏条目与知识图谱<br/>查规格、依赖和触发关系"]
-    E --> F["证据原文与元信息卡<br/>按出处定位章节并核验来源"]
-    E --> G["冲突记录与盲区清单<br/>附上已有风险与缺口"]
-    F --> H["需求结论<br/>规格、原文依据与影响范围"]
-    G --> H
+    A["客户需求：<br/>修改 OAT 可输入范围"] -->|解析| B["LLM 解析需求：<br/>识别功能、参数与约束"]
+    B -->|取词| C["检索词表：<br/>别名、缩写、中英文扩词"]
+    C -->|对齐| D["术语登记表：<br/>归一到规范术语"]
+    D -->|查询| E["蒸馏条目与知识图谱：<br/>查规格、依赖和触发关系"]
+    E -->|溯源| F["证据原文与元信息卡：<br/>按出处定位章节并核验来源"]
+    E -->|核查| G["冲突记录与盲区清单：<br/>附上已有风险与缺口"]
+    F -->|组织| H["需求结论：<br/>规格、原文依据与影响范围"]
+    G -->|提示| H
+
+    classDef actor fill:#e8f0f6,stroke:#285e8a,color:#1f4e70;
+    classDef asset fill:#fff4d6,stroke:#d4a017,color:#5c4400;
+    classDef risk fill:#f7ece5,stroke:#a2542f,color:#6e3b22;
+    classDef result fill:#eaf4ea,stroke:#4c8055,color:#2d5a34;
+    class A,B actor;
+    class C,D,E,F asset;
+    class G risk;
+    class H result;
 </pre>
           <figcaption>图 3：客户需求驱动知识库的读取链路，先统一术语，再查条目和关系，最后回到证据原文</figcaption>
         </figure>
@@ -702,11 +711,11 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["多渠道采集<br/>不做质量预判"] --> B["结构化抽取<br/>保留章节编号树"]
-    B --> C["独立归档<br/>索引+元信息卡"]
+    A["多渠道采集：<br/>不做质量预判"] --> B["结构化抽取：<br/>保留章节编号树"]
+    B --> C["独立归档：<br/>索引+元信息卡"]
     C --> D{"有原生目录？"}
     D -->|有| E["保留原始目录树"]
-    D -->|无| F["LLM 补建目录<br/>主题段+摘要+行号"]
+    D -->|无| F["LLM 补建目录：<br/>主题段+摘要+行号"]
     E --> G["进入 L1 分级"]
     F --> G
 </pre>
@@ -821,13 +830,13 @@ page_or_line_count: 487               <span class="cmt"># 篇幅规模（页数�
 <pre class="mermaid">
 flowchart LR
     S["待分级文档"] --> Q1{"相关性达标？"}
-    Q1 -->|否| X["丢弃<br/>只留元信息卡"]
+    Q1 -->|否| X["丢弃：<br/>只留元信息卡"]
     Q1 -->|是| Q2{"官方且操作级？"}
-    Q2 -->|人工指定| A["主证据层<br/>每领域 1~2 份"]
-    Q2 -->|名额已满| B["补充证据层<br/>须标置信度，冲突听主证据层"]
+    Q2 -->|人工指定| A["主证据层：<br/>每领域 1~2 份"]
+    Q2 -->|名额已满| B["补充证据层：<br/>须标置信度，冲突听主证据层"]
     Q2 -->|否| Q3{"有主证据层缺失的信息？"}
     Q3 -->|是| B
-    Q3 -->|否| C["线索层<br/>只产三类产物"]
+    Q3 -->|否| C["线索层：<br/>只产三类产物"]
 </pre>
 <figcaption>图 6：四层分流决策树</figcaption>
 </figure>
@@ -845,9 +854,9 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["① 纯人工<br/>产出标注数据集"] --> B["② LLM 打标<br/>人工抽检 ≥20%"]
+    A["① 纯人工：<br/>产出标注数据集"] --> B["② LLM 打标：<br/>人工抽检 ≥20%"]
     B -->|错分>5%| A
-    B -->|错分≤5%| C["③ 规则固化<br/>LLM 只处理灰色地带"]
+    B -->|错分≤5%| C["③ 规则固化：<br/>LLM 只处理灰色地带"]
 </pre>
 <figcaption>图 7：分级自动化三步走</figcaption>
 </figure>
@@ -939,10 +948,10 @@ triage:
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["未验证断言<br/>文档声称 X 支持 Y"] --> B{"回查主/补充证据层"}
-    B -->|证实| C["建立蒸馏条目<br/>带来源，标记已证实"]
-    B -->|证伪| D["进冲突记录<br/>错误本身也是情报"]
-    B -->|查无| E["进盲区清单<br/>仅线索层提及"]
+    A["未验证断言：<br/>文档声称 X 支持 Y"] --> B{"回查主/补充证据层"}
+    B -->|证实| C["建立蒸馏条目：<br/>带来源，标记已证实"]
+    B -->|证伪| D["进冲突记录：<br/>错误本身也是情报"]
+    B -->|查无| E["进盲区清单：<br/>仅线索层提及"]
 </pre>
           <figcaption>图 8：未验证断言的三态闭环</figcaption>
         </figure>
@@ -1039,12 +1048,12 @@ flowchart LR
 flowchart LR
     A["新文档入库"] --> B["LLM 抽取术语"]
     B --> C{"匹配术语登记表？<br/>先精确后语义"}
-    C -->|命中| D["映射到规范名<br/>必要时补登别名"]
-    C -->|未命中| E["提议新规范名<br/>状态=待仲裁"]
-    E --> F{"人工仲裁<br/>冷启动期全人工"}
+    C -->|命中| D["映射到规范名：<br/>必要时补登别名"]
+    C -->|未命中| E["提议新规范名：<br/>状态=待仲裁"]
+    E --> F{"人工仲裁：<br/>冷启动期全人工"}
     F -->|确认| G["登记为规范名"]
-    F -->|存疑| H["保持待仲裁<br/>可并存查询"]
-    D --> I["蒸馏术语字段<br/>只填 canonical_id"]
+    F -->|存疑| H["保持待仲裁：<br/>可并存查询"]
+    D --> I["蒸馏术语字段：<br/>只填 canonical_id"]
     G --> I
 </pre>
           <figcaption>图 10：术语对齐流程，先精确后语义，合并永远过人工</figcaption>
@@ -1117,8 +1126,8 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    G["① 通用骨架层<br/>功能点 / UI 元素 / 流程<br/>接口 / 约束规则"] -->|套用| D["② 领域定制字段层<br/>例：IOS 功能点五字段<br/>触发方式 / 输入范围 / 状态流转<br/>关联依赖 / 异常边界"]
-    D -->|沉淀| R["③ 登记册<br/>盲区清单 / 冲突记录<br/>待仲裁术语"]
+    G["① 通用骨架层：<br/>功能点 / UI 元素 / 流程<br/>接口 / 约束规则"] -->|套用| D["② 领域定制字段层：<br/>例：IOS 功能点五字段<br/>触发方式 / 输入范围 / 状态流转<br/>关联依赖 / 异常边界"]
+    D -->|沉淀| R["③ 登记册：<br/>盲区清单 / 冲突记录<br/>待仲裁术语"]
 </pre>
           <figcaption>图 11：条目结构两层加三份登记册。①→② 是骨架套用到领域长出字段表，②→③ 是蒸馏过程中沉淀出登记册</figcaption>
         </figure>
@@ -1214,8 +1223,8 @@ flowchart TD
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    DOC["文档 / 章节节点<br/>（主证据层、补充证据层）"] -->|"SUPPORTS（出处边）"| E["规格条目节点<br/>功能点/UI/流程/接口/约束"]
-    E -->|"ALIAS_OF"| T["术语节点<br/>canonical_id"]
+    DOC["文档 / 章节节点：<br/>（主证据层、补充证据层）"] -->|"SUPPORTS（出处边）"| E["规格条目节点：<br/>功能点/UI/流程/接口/约束"]
+    E -->|"ALIAS_OF"| T["术语节点：<br/>canonical_id"]
     E -->|"DEPENDS_ON(依赖)"| E2["规格条目节点"]
     E -->|"TRIGGERS(触发)"| F["流程条目节点"]
     E <-.->|"CONFLICTS_WITH(冲突)"| E3["冲突条目节点"]
@@ -1268,11 +1277,11 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["开工前<br/>定条目结构与字段表<br/>（冻结，中途不改）<br/>做金样板"] --> B["干活中 · 批量蒸馏<br/>纪律一：系统性偏差统一返工<br/>纪律二：推理补全四环节"]
-    B --> C["交付前 · 组装加清算<br/>条目组装成定稿产物<br/>盲区清单、冲突记录、低置信条目逐项处置<br/>覆盖查询差集清零"]
-    C --> D["盲评<br/>懂行人（非作者）审定稿"]
+    A["开工前：<br/>定条目结构与字段表<br/>（冻结，中途不改）<br/>做金样板"] --> B["干活中 · 批量蒸馏：<br/>纪律一：系统性偏差统一返工<br/>纪律二：推理补全四环节"]
+    B --> C["交付前 · 组装加清算：<br/>条目组装成定稿产物<br/>盲区清单、冲突记录、低置信条目逐项处置<br/>覆盖查询差集清零"]
+    C --> D["盲评：<br/>懂行人（非作者）审定稿"]
     D -->|"通过率 ≥85%"| E["交付使用"]
-    D -->|"通过率 <85%"| F["低分环节即管道加固点<br/>修复后重新评审"]
+    D -->|"通过率 <85%"| F["低分环节即管道加固点：<br/>修复后重新评审"]
 </pre>
           <figcaption>图 15：质量动作的时间线，开工前、干活中、交付前各有对应动作</figcaption>
         </figure>
@@ -1313,9 +1322,9 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    Q1["规格查询<br/>X 功能的完整规格？"] --> R1["术语登记表翻译术语<br/>等值匹配取条目"]
-    Q2["风险查询<br/>哪些条目还不结实？"] --> R2["置信度低 / 单源 / 涉冲突<br/>三条件过滤"]
-    Q3["覆盖查询<br/>哪些章节还没蒸？"] --> R3["全章节清单<br/>减去已蒸出处"]
+    Q1["规格查询：<br/>X 功能的完整规格？"] --> R1["术语登记表翻译术语：<br/>等值匹配取条目"]
+    Q2["风险查询：<br/>哪些条目还不结实？"] --> R2["置信度低 / 单源 / 涉冲突：<br/>三条件过滤"]
+    Q3["覆盖查询：<br/>哪些章节还没蒸？"] --> R3["全章节清单：<br/>减去已蒸出处"]
 </pre>
           <figcaption>图 16：三类逆向查询各回答一个开发前最常问的问题</figcaption>
         </figure>
@@ -1391,14 +1400,14 @@ jq -r '.source[].section' entries.jsonl | sort -u</code></pre>
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["主证据或补充证据文档<br/>官方手册 / 培训材料"] --> B["元信息卡<br/>L0 建档，L1 回写层级"]
+    A["主证据或补充证据文档：<br/>官方手册 / 培训材料"] --> B["元信息卡：<br/>L0 建档，L1 回写层级"]
     B --> C["LLM 通读并抽词"]
-    C --> D["术语登记表<br/>新词待仲裁，合并人工确认"]
+    C --> D["术语登记表：<br/>新词待仲裁，合并人工确认"]
     C --> E["LLM 按骨架蒸馏"]
     D --> E
-    E --> F["entries.jsonl<br/>追加条目并标置信度"]
-    E --> G["盲区清单 / 冲突记录<br/>发现缺口或分歧时追加"]
-    F --> H["知识图谱索引<br/>脚本刷新 SUPPORTS 等边"]
+    E --> F["entries.jsonl：<br/>追加条目并标置信度"]
+    E --> G["盲区清单 / 冲突记录：<br/>发现缺口或分歧时追加"]
+    F --> H["知识图谱索引：<br/>脚本刷新 SUPPORTS 等边"]
 </pre>
           <figcaption>图 17：证据文档入库后，元信息卡、术语、条目和图谱依次更新</figcaption>
         </figure>
@@ -1409,14 +1418,14 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["线索层文档<br/>博客 / 播客"] --> B["元信息卡<br/>L0 建档，L1 标记线索层"]
+    A["线索层文档：<br/>博客 / 播客"] --> B["元信息卡：<br/>L0 建档，L1 标记线索层"]
     B --> C["LLM 提取三类线索"]
-    C --> D["概念提及清单<br/>追加提及与频次"]
-    C --> E["断言日志<br/>新增未验证，resolution=null"]
-    C --> F["检索词表<br/>未匹配时 canonical_id=null"]
-    D --> G["术语登记表<br/>人工确认后登记别名"]
+    C --> D["概念提及清单：<br/>追加提及与频次"]
+    C --> E["断言日志：<br/>新增未验证，resolution=null"]
+    C --> F["检索词表：<br/>未匹配时 canonical_id=null"]
+    D --> G["术语登记表：<br/>人工确认后登记别名"]
     F --> G
-    G --> H["清单回填<br/>关联 canonical_id<br/>提及改为已登记别名"]
+    G --> H["清单回填：<br/>关联 canonical_id<br/>提及改为已登记别名"]
 </pre>
           <figcaption>图 18：线索文档先递增三份清单，术语确认后再回填关联编号</figcaption>
         </figure>
@@ -1429,13 +1438,13 @@ flowchart LR
         <figure class="figure">
 <pre class="mermaid">
 flowchart LR
-    A["新证据文档入库<br/>主证据或补充证据"] --> B["全文索引增量更新"]
+    A["新证据文档入库：<br/>主证据或补充证据"] --> B["全文索引增量更新"]
     B --> C["筛选未解决断言"]
     C --> D["LLM 或人工核对候选原文"]
-    D -->|证实| E["断言改为已证实<br/>补 entries，resolution=条目 id"]
-    D -->|证伪| F["断言改为证伪<br/>补 conflicts，resolution=冲突 id"]
-    D -->|查无| G["断言改为查无<br/>补盲区，resolution=盲区 id"]
-    E --> H["知识图谱索引<br/>脚本刷新"]
+    D -->|证实| E["断言改为已证实：<br/>补 entries，resolution=条目 id"]
+    D -->|证伪| F["断言改为证伪：<br/>补 conflicts，resolution=冲突 id"]
+    D -->|查无| G["断言改为查无：<br/>补盲区，resolution=盲区 id"]
+    E --> H["知识图谱索引：<br/>脚本刷新"]
     F --> H
 </pre>
           <figcaption>图 19：新证据触发旧断言回查，三种结果分别刷新条目、冲突和盲区</figcaption>
