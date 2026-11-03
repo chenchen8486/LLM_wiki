@@ -926,14 +926,15 @@ flowchart LR
         <p>格式按用途确定。断言日志要逐条追踪状态、用 jq 过滤，选 JSONL。概念提及清单与检索词表以词为键、人工翻阅维护较多，选 YAML。以下样式可直接照搬建仓。</p>
 
         <p>概念提及清单（concept_mentions.yaml）：按词汇总，回答“这个词在全领域被多少篇文档提过、分别怎么提的”。status 取值：未处理、待仲裁、已登记别名。</p>
-        <pre><code>- term: 教案
-  freq: 14
-  status: 已登记别名
-  canonical_id: term_lesson_plan
-  mentions:
-    - doc: podcast_s03e12
-      section: seg_07
-      snippet: 讲师提到可以直接拿教案生成训练任务
+        <pre><code><span class="cmt"># 概念提及清单：按词汇总线索层的提及，只递增，不作证据</span>
+- term: 教案                      <span class="cmt"># 术语原词</span>
+  freq: 14                        <span class="cmt"># 全领域出现频次</span>
+  status: 已登记别名              <span class="cmt"># 处理状态：未处理 / 待仲裁 / 已登记别名</span>
+  canonical_id: term_lesson_plan  <span class="cmt"># 规范术语编号，未关联时为 null</span>
+  mentions:                       <span class="cmt"># 提及位置列表</span>
+    - doc: podcast_s03e12         <span class="cmt"># 来源文档编号</span>
+      section: seg_07             <span class="cmt"># 章节或片段编号</span>
+      snippet: 讲师提到可以直接拿教案生成训练任务  <span class="cmt"># 上下文摘句</span>
     - doc: blog_review_2025
       section: L120-L134
       snippet: 教案功能藏得比较深
@@ -952,10 +953,11 @@ flowchart LR
 {"assertion_id":"ast_0057","subject":"VR 视景","claim":"IOS 支持导出 VR 视景配置文件","source_doc":"podcast_s03e12","source_section":"seg_11","status":"查无","collect_date":"2026-08-11","check_note":"主证据层、补充证据层的目录索引加全文检索均无相关章节","resolution":"blindspot_0013"}</code></pre>
 
         <p>检索词表（search_lexicon.yaml）：俗名、缩写、中英文、行业黑话，供回查与下一轮收集扩词。能挂上术语登记表的填 canonical_id，挂不上的留 null 待关联。</p>
-        <pre><code>- word: 室外温度
-  type: 俗名
-  canonical_id: term_oat
-  source_doc: podcast_s03e12
+        <pre><code><span class="cmt"># 检索词表：汇总别名、缩写和黑话，供检索扩词，只递增</span>
+- word: 室外温度              <span class="cmt"># 检索词原词</span>
+  type: 俗名                  <span class="cmt"># 词汇类型：俗名 / 缩写 / 黑话等</span>
+  canonical_id: term_oat      <span class="cmt"># 规范术语编号，未关联时为 null</span>
+  source_doc: podcast_s03e12  <span class="cmt"># 来源文档编号</span>
 - word: FF
   type: 缩写
   canonical_id: term_flight_freeze
