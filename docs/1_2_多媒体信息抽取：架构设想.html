@@ -359,8 +359,9 @@ try{
       <a href="#ch10" class="toc-item"><span class="toc-num">10</span>质量保障</a>
       <a href="#ch11" class="toc-item"><span class="toc-num">11</span>建成后的使用方式</a>
       <a href="#ch12" class="toc-item"><span class="toc-num">12</span>演示</a>
+      <a href="#ch13" class="toc-item"><span class="toc-num">13</span>表单刷新演示（临时）</a>
     </nav>
-    <div class="sidebar-foot">全 12 章<br>自包含离线版</div>
+    <div class="sidebar-foot">全 13 章<br>自包含离线版</div>
   </aside>
 
   <main id="main">
@@ -1342,6 +1343,88 @@ jq -r '.source[].section' entries.jsonl | sort -u</code></pre>
           <p class="chapter-lead">全链路播放器：六个分镜共享同一条 151 帧时间轴，可播放、暂停、逐帧、调速（0.5x-4x），播放条上的圆形刻度标在每篇文档进入的那一帧，点击直接跳转。本章节引用外部帧图，请保持 docs/gif/ 目录与本文档的相对位置不变。</p>
         </header>
         <iframe src="gif/全链路播放器.html" style="width:100%;height:1240px;border:1.5px solid var(--line,#e2e0d8);border-radius:12px;background:#f7f7f5" loading="lazy" title="全链路播放器"></iframe>
+      </section>
+
+      <section class="chapter" id="ch13">
+        <header class="chapter-head">
+          <div class="chapter-meta">
+            <span class="chapter-num">13</span>
+            <span class="chapter-kicker">临时演示</span>
+          </div>
+          <h2>三篇文档如何刷新知识库</h2>
+          <p class="chapter-lead">用三篇连续入库的文档看表单更新：第 1 篇官方手册进主证据层，第 2 篇培训材料进补充证据层，第 3 篇博客进线索层。只需先记住三件事：证据文档写知识，线索文档写三份清单，新证据会回头刷新旧断言。</p>
+        </header>
+
+        <h3 id="s13-1"><span class="h3-num">13.1</span> 第 1 篇和第 2 篇：证据文档写知识<a class="anchor" href="#s13-1">§</a></h3>
+        <p>主证据层和补充证据层走同一条写入路径。差别在置信度和冲突仲裁：主证据层单源通常为高，补充证据层单源通常为中，两者冲突时主证据层优先。</p>
+
+        <figure class="figure">
+<pre class="mermaid">
+flowchart LR
+    A["主证据或补充证据文档<br/>官方手册 / 培训材料"] --> B["元信息卡<br/>L0 建档，L1 回写层级"]
+    B --> C["LLM 通读并抽词"]
+    C --> D["术语登记表<br/>新词待仲裁，合并人工确认"]
+    C --> E["LLM 按骨架蒸馏"]
+    D --> E
+    E --> F["entries.jsonl<br/>追加条目并标置信度"]
+    E --> G["盲区清单 / 冲突记录<br/>发现缺口或分歧时追加"]
+    F --> H["知识图谱索引<br/>脚本刷新 SUPPORTS 等边"]
+</pre>
+          <figcaption>图 16：证据文档入库后，元信息卡、术语、条目和图谱依次更新</figcaption>
+        </figure>
+
+        <h3 id="s13-2"><span class="h3-num">13.2</span> 第 3 篇：线索文档只写三份清单<a class="anchor" href="#s13-2">§</a></h3>
+        <p>博客进入线索层后，不直接生成知识条目。LLM 只提取三类线索。概念提及和检索词能辅助术语对齐，但都要等对应关系确认后才回填。</p>
+
+        <figure class="figure">
+<pre class="mermaid">
+flowchart LR
+    A["线索层文档<br/>博客 / 播客"] --> B["元信息卡<br/>L0 建档，L1 标记线索层"]
+    B --> C["LLM 提取三类线索"]
+    C --> D["概念提及清单<br/>追加提及与频次"]
+    C --> E["断言日志<br/>新增未验证，resolution=null"]
+    C --> F["检索词表<br/>未匹配时 canonical_id=null"]
+    D --> G["术语登记表<br/>人工确认后登记别名"]
+    F --> G
+    G --> H["清单回填<br/>关联 canonical_id<br/>提及改为已登记别名"]
+</pre>
+          <figcaption>图 17：线索文档先递增三份清单，术语确认后再回填关联编号</figcaption>
+        </figure>
+
+        <p>检索词表的待关联就是 <code>canonical_id=null</code>。术语对齐确认它属于哪个规范术语后，把编号填入即可。概念提及清单还会把状态从待处理或待仲裁改为已登记别名。</p>
+
+        <h3 id="s13-3"><span class="h3-num">13.3</span> 新证据如何刷新旧断言<a class="anchor" href="#s13-3">§</a></h3>
+        <p>第 1 篇和第 2 篇不仅写入自己的知识，也作为新证据触发旧断言复查。只有仍未解决的断言需要回查，已经证实或证伪的断言不重复处理。</p>
+
+        <figure class="figure">
+<pre class="mermaid">
+flowchart LR
+    A["新证据文档入库<br/>主证据或补充证据"] --> B["全文索引增量更新"]
+    B --> C["筛选未解决断言"]
+    C --> D["LLM 或人工核对候选原文"]
+    D -->|证实| E["断言改为已证实<br/>补 entries，resolution=条目 id"]
+    D -->|证伪| F["断言改为证伪<br/>补 conflicts，resolution=冲突 id"]
+    D -->|查无| G["断言改为查无<br/>补盲区，resolution=盲区 id"]
+    E --> H["知识图谱索引<br/>脚本刷新"]
+    F --> H
+</pre>
+          <figcaption>图 18：新证据触发旧断言回查，三种结果分别刷新条目、冲突和盲区</figcaption>
+        </figure>
+
+        <p>查无也不是永久封存。后续证据如果给出答案，旧断言可以重新打开，盲区记录随之核销，再写入新条目和新出处。</p>
+
+        <h3 id="s13-4"><span class="h3-num">13.4</span> 三篇文档的更新对照<a class="anchor" href="#s13-4">§</a></h3>
+        <div class="table-wrap">
+          <table>
+            <caption>表 10：三篇文档分别更新哪些资产</caption>
+            <thead><tr><th>文档</th><th>直接更新</th><th>明确不做</th><th>后续刷新</th></tr></thead>
+            <tbody>
+              <tr><td>第 1 篇：官方手册<br/>主证据层</td><td>元信息卡、术语登记表、entries.jsonl、知识图谱。发现缺口或分歧时更新盲区或冲突</td><td>不更新线索层三份清单</td><td>作为证据回查旧断言</td></tr>
+              <tr><td>第 2 篇：培训材料<br/>补充证据层</td><td>同主证据层，但条目单源置信度通常为中</td><td>不更新线索层三份清单</td><td>作为新证据回查旧断言</td></tr>
+              <tr><td>第 3 篇：博客<br/>线索层</td><td>元信息卡、概念提及、断言日志、检索词表。图谱只加 MENTIONS</td><td>不直接写 entries、conflicts 或盲区</td><td>术语确认后回填 canonical_id，证据核查后更新断言状态</td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
 
