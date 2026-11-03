@@ -607,6 +607,8 @@ flowchart LR
 <figcaption>图 2：全链路架构。红色透明度按主证据、补充证据、线索、丢弃递减。黄色标签为各阶段资产，编号与表 1 对应</figcaption>
 </figure>
 
+        <p>注意图 2 里的线。实线是证据流，结论可以据此成立。虚线分两种：灰色虚线是线索流，只指路，不作证据；黄色虚线连到黄色标签，标出各阶段产出的资产。3.3 展开讲证据流和线索流这两条通道。</p>
+
         <h3 id="s3-2"><span class="h3-num">3.2</span> 一次客户需求如何调用知识库<a class="anchor" href="#s3-2">§</a></h3>
         <p>图 2 展示知识库怎么建。建成后，客户提出需求时不再重新分级或蒸馏文档，而是沿已有的编号和索引取知识，再回到证据原文核对。以“我要修改外界温度（OAT）的可输入范围，并确认会影响哪些功能”为例，调用链如下：</p>
 
@@ -643,8 +645,6 @@ flowchart LR
         </ol>
 
         <p>这条链是读取流程，客户提出需求本身不会改写知识库。概念提及清单和断言日志主要服务建仓时的术语对齐与证据核查，不必参与每一次需求查询。后续新文档入库时，才按图 2 的建仓流程更新相关资产。</p>
-
-        <p>注意图 2 里的线。实线是证据流，结论可以据此成立。虚线分两种：灰色虚线是线索流，只指路，不作证据；黄色虚线连到黄色标签，标出各阶段产出的资产。3.3 展开讲证据流和线索流这两条通道。</p>
 
         <h3 id="s3-3"><span class="h3-num">3.3</span> 两条通道<a class="anchor" href="#s3-3">§</a></h3>
         <p>实线是主流程。文档经过采集和分级后，主证据层与补充证据层进入术语对齐和蒸馏，蒸出的条目再建知识图谱索引。这条线上的每个环节都要求出处，结论可以据此成立。</p>
@@ -1040,7 +1040,7 @@ flowchart LR
   首次出处: {doc: cae_ios_manual, section: "7.1"}   <span class="cmt"># 第一次发现该术语的文档与章节，便于回查原文</span>
   状态: 已确认                                      <span class="cmt"># 已确认（人工拍板过）/ 待仲裁（LLM 提议、人工尚未确认）</span>
   备注: Lesson Plan Profile 是独立工作区，与 Lesson Plan Tab 不同，曾发生同名异物误判</code></pre>
-        <p class="note">术语登记表的编号是全库的挂接点：蒸馏条目的术语字段、知识图谱的 ALIAS_OF 边都只准引用 canonical_id，不引文档原词。检索词表不只给术语对齐提供候选别名，还独立服务查询扩词和证据回查。</p>
+        <p class="note">术语登记表：canonical_id 是全库的挂接点，蒸馏条目的术语字段、知识图谱的 ALIAS_OF 边都只准引用它，不引文档原词。检索词表不只给术语对齐提供候选别名，还独立服务查询扩词和证据回查。</p>
 
         <h3 id="s7-3"><span class="h3-num">7.3</span> 对齐流程<a class="anchor" href="#s7-3">§</a></h3>
         <figure class="figure">
@@ -1147,13 +1147,14 @@ flowchart LR
   "created_by": "L2-extractor-v1",                                                 <span class="cmt">// 产出本条目的提取器/提示词版本，批量返工时用于圈定受影响范围</span>
   "reviewed": false                                                                <span class="cmt">// 是否已通过人工把关</span>
 }</code></pre>
-        <p class="note">条目结构：骨架类型决定 slots 里填什么字段，其余元字段全类型通用。</p>
+        <p class="note">entries.jsonl 表单：骨架类型决定 slots 里填什么字段，其余元字段全类型通用。</p>
         <p>蒸馏产物全局只有一份 entries.jsonl，每条知识一行，不是每篇文档一份文件。假设《CAE IOS 手册》蒸出 3 条、《某厂商培训材料》蒸出 2 条，文件内容就是 5 行（为省篇幅只保留关键字段，完整字段见上方）：</p>
         <pre><code>{"id": "feat_oat_adjust",         "type": "功能点",   "title": "OAT 外界温度修改",  "source": [{"doc": "cae_ios_manual", "section": "7.4.2", "quote": "……"}], "confidence": "高", "status": "证据"}
 {"id": "feat_flight_freeze",      "type": "功能点",   "title": "飞行冻结开关",      "source": [{"doc": "cae_ios_manual", "section": "11.1", "quote": "……"}], "confidence": "高", "status": "证据"}
 {"id": "ui_slew_panel",           "type": "UI 元素",  "title": "SLEW 滑动面板",     "source": [{"doc": "cae_ios_manual", "section": "7.2", "quote": "……"}], "confidence": "高", "status": "证据"}
-{"id": "feat_malf_script",        "type": "功能点",   "title": "自定义故障脚本注入",  "source": [{"doc": "vendor_training", "section": "8.3", "quote": "……"}], "confidence": "中", "status": "证据"}
+<span class="update-recheck">{"id": "feat_malf_script",        "type": "功能点",   "title": "自定义故障脚本注入",  "source": [{"doc": "vendor_training", "section": "8.3", "quote": "……"}], "confidence": "中", "status": "证据"}</span>
 {"id": "rule_cb_reset_limit",     "type": "约束规则",  "title": "跳开关重置次数限制",  "source": [{"doc": "vendor_training", "section": "13.1", "quote": "……"}], "confidence": "中", "status": "假设"}</code></pre>
+        <p class="note"><span class="update-recheck">entries.jsonl 表单：红色条目由断言日志中的未验证断言证实后补建。断言只触发核查，条目的 source 仍指向证据层文档章节。证伪结果写入 conflicts.jsonl，查无结果写入盲区清单。</span></p>
 
         <h3 id="s8-3"><span class="h3-num">8.3</span> 冲突仲裁规则<a class="anchor" href="#s8-3">§</a></h3>
         <p>核心语料从多份文档、多渠道收集后，同一个知识点可能有多份文档给出不同说法。蒸馏时不许随意挑选其一入库，每条结论的出身和等级必须明确，解决不了的冲突必须留痕。按冲突双方的身份分三种情形：</p>
