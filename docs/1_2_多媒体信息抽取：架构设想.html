@@ -1177,6 +1177,20 @@ flowchart TD
 </pre>
           <figcaption>图 12：三种冲突情形的仲裁规则</figcaption>
         </figure>
+
+        <h3 id="s8-4"><span class="h3-num">8.4</span> 冲突记录与盲区清单的表单示例<a class="anchor" href="#s8-4">§</a></h3>
+        <p>两份登记册都有两个来源：蒸馏证据文档时直接发现的问题，以及线索断言核查后的结果。下面用红色标出后者，并与第 6 章断言日志中的 resolution 指针对应。</p>
+
+        <p>conflicts.jsonl：全局一份 JSONL，每条冲突一行。字段包括冲突编号、冲突双方条目、仲裁状态和仲裁结论。</p>
+        <pre><code><span class="update-recheck">{"conflict_id":"conflict_0007","entry_ids":["rule_oat_upper_manual","rule_oat_upper_training"],"status":"待仲裁","arbitration":null}</span></code></pre>
+        <p class="note"><span class="update-recheck">conflicts.jsonl 表单：红色记录由 ast_0031 证伪后写入，断言日志的 resolution 指向 conflict_0007。是否采纳某方说法仍需人工仲裁。</span></p>
+
+        <p>盲区清单（MD）：全局一份 Markdown，每项缺口写清问题、状态、核查范围和说明。</p>
+        <pre><code><span class="update-recheck">### blindspot_0013：IOS 是否支持导出 VR 视景配置文件
+- 状态：查无
+- 核查范围：主证据层、补充证据层
+- 说明：目录索引加全文检索均无相关章节</span></code></pre>
+        <p class="note"><span class="update-recheck">盲区清单（MD）：红色记录由 ast_0057 查无后写入，断言日志的 resolution 指向 blindspot_0013。后续证据补齐时可核销该盲区，并补建条目。</span></p>
       </section>
 
       <section class="chapter" id="ch09">
